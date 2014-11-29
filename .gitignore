@@ -1,0 +1,7 @@
+target
+work
+.settings/
+.idea/
+*.iml
+.vagrant/
+Vagrantfile
