@@ -1,0 +1,160 @@
+---
+project:
+  name: PegParser
+  description: "Xored PEG parser implementation"
+  git: git@github.com:xored/peg.git
+  build: |
+    $FAN_DEV_HOME/bin/fan src/build.fan
+
+---
+project:
+  name: fantik
+  description: "Fantom Web widget toolkit."
+  git: git@github.com:xored/fantik.git
+  build: |
+    $FAN_DEV_HOME/bin/fan build.fan
+
+---
+project:
+  name: Diff
+  description: "Diff ported to Fantom."
+  hg: https://bitbucket.org/dsavenko/diff
+  build: |
+    $FAN_DEV_HOME/bin/fan src/build.fan
+
+---
+project:
+  name: stylish
+  description: "Scene graph based approach for working with widgets in FWT (renamed)."
+  git: git@github.com:xored/stylish.git
+  build: |
+    $FAN_DEV_HOME/bin/fan src/build.fan
+    $FAN_DEV_HOME/bin/fan deploy/build.fan mvnDeploy
+
+---
+project:
+  name: PegEditor
+  description: "Editor for PEG grammars."
+  git: git@github.com:xored/peg-editor.git
+  build: |
+    $FAN_DEV_HOME/bin/fan build_all.fan
+  buildAfter:
+    - fantik
+    - PegParser
+
+---
+project:
+  name: fantom-java-deploy
+  description: "Utility classes for deploying fantom pods as java libraries."
+  hg: https://bitbucket.org/dsavenko/fantom-java-deploy
+  build: |
+    $FAN_DEV_HOME/bin/fan src/build.fan
+
+---
+project:
+  name: fantom-java-runtime
+  description: "Fantom core libraries compiled into a single jar."
+  hg: https://bitbucket.org/dsavenko/fantom-java-runtime
+  build: |
+    $FAN_DEV_HOME/bin/fan src/build.fan mvnDeploy
+  buildAfter:
+    - fantom-java-deploy
+
+---
+project:
+  name: LogAnalyzer
+  description: ""
+  git: git@github.com:xored/LogAnalyserUI.git
+  build: |
+    $FAN_DEV_HOME/bin/fan build.fan mvnDeploy
+  buildAfter:
+    - fantom-java-deploy
+    - PegEditor
+    - PegParser
+    - stylish
+    - Diff
+
+---
+project:
+  name: la-lib
+  description: "Log Analyzer Library"
+  git: git@github.com:xored/LogAnalyser.git
+  build: |
+    mvn clean deploy
+  buildAfter:
+    - fantom-java-runtime
+    - LogAnalyzer
+
+---
+project:
+  name: LogAnalyzerJEE
+  description: ""
+  git: git@github.com:xored/log-analyser-jee.git
+  build: |
+    mvn clean package
+    mvn package -Ptomcat
+  buildAfter:
+    - fantom-java-runtime
+    - LogAnalyzer
+    - la-lib
+
+---
+project:
+  name: log-analyzer-cli
+  description: ""
+  git: git@github.com:xored/LogAnalyserCLI.git
+  build: |
+    mvn clean package
+  buildAfter:
+    - la-lib
+
+---
+project:
+  name: GrammarEditorJEE
+  description: ""
+  git: git@github.com:xored/log-analyser-grammar-editor-jee.git
+  build: |
+    mvn clean package
+    mvn package -Ptomcat
+  buildAfter:
+    - la-lib
+
+---
+project:
+  name: EZCommit-UI
+  description: ""
+  git: git@github.com:xored/ezcommit-ui.git
+  build: |
+    mvn clean package
+  buildAfter:
+    - la-lib
+
+---
+project:
+  name: LogAnalyzerPlugin
+  description: ""
+  git: git@github.com:xored/LogAnalyserPlugin.git
+  build: |
+    mvn clean package
+  buildAfter:
+    - la-lib
+    - fantom-java-runtime
+    - LogAnalyzer
+
+---
+project:
+  name: LogAnalyserGrammars
+  description: "Grammars for Log Analyser"
+  git: git@github.com:xored/LogAnalyserGrammars.git
+  build: ""
+
+---
+project:
+  name: LogAnalyserTests
+  description: "Integration tests for Log Analyser"
+  git: git@github.com:xored/LogAnalyserTests.git
+  build: |
+    java -jar ../log-analyzer-cli/target/lace-cli.jar replay -D ../LogAnalyserGrammars/grammars *.zip
+  buildAfter:
+    - log-analyzer-cli
+    - LogAnalyserGrammars
