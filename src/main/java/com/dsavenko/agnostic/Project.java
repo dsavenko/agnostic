@@ -4,6 +4,8 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -72,21 +74,25 @@ public final class Project {
 		System.out.println("Checkout finished: " + getName());
 	}
 
-	public void build(File parentDir) {
-		System.out.println("Building started: " + getName());
-		File script = null;
-		File projectDir = new File(parentDir, getName());
-		if (!projectDir.exists()) {
-			throw new AgnosticException("Project directory doesn't exist: " + projectDir.getAbsolutePath());
+	private File getProjectDir(File parentDir) {
+		File ret = new File(parentDir, getName());
+		if (!ret.exists()) {
+			throw new AgnosticException("Project directory doesn't exist: " + ret.getAbsolutePath());
 		}
+		return ret;
+	}
+
+	private static int execBash(File baseDir, String scriptContent, String... args) {
+		File script = null;
 		try {
 			script = File.createTempFile("agnostic-script-", "sh");
-			FileUtils.writeStringToFile(script, getBuild());
-			int ret = Util.runProcess(projectDir, "/bin/sh", "-xe", script.getAbsolutePath());
-			if (0 != ret) {
-				throw new AgnosticException("Failed to build, ret code: " + ret);
-			}
-			System.out.println("Building finished: " + getName());
+			FileUtils.writeStringToFile(script, scriptContent);
+			List<String> cmd = new ArrayList<>();
+			cmd.add("/bin/sh");
+			cmd.add("-xe");
+			cmd.add(script.getAbsolutePath());
+			cmd.addAll(Arrays.asList(args));
+			return Util.runProcess(baseDir, cmd.toArray(new String[cmd.size()]));
 		} catch (IOException e) {
 			throw new AgnosticException(e.getMessage(), e);
 		} finally {
@@ -94,6 +100,45 @@ public final class Project {
 				script.delete();
 			}
 		}
+	}
+
+	public void build(File parentDir) {
+		System.out.println("Building started: " + getName());
+		int ret = execBash(getProjectDir(parentDir), getBuild());
+		if (0 != ret) {
+			throw new AgnosticException("Failed to build, ret code: " + ret);
+		}
+		System.out.println("Building finished: " + getName());
+	}
+
+	private String getScript(String name) {
+		List<Map> scripts = (List<Map>) yaml.get("scripts");
+		if (null == scripts) {
+			throw new AgnosticException("Project has no scripts");
+		}
+		for (Map m : scripts) {
+			String n = (String) m.get("name");
+			if (null == n || n.trim().isEmpty()) {
+				throw new AgnosticException("Unnamed script");
+			}
+			if (name.equals(n)) {
+				return (String) m.get("cmd");
+			}
+		}
+		return null;
+	}
+
+	public void runScript(File parentDir, String name, String[] args) {
+		System.out.println("Executing script: " + name);
+		final String script = getScript(name);
+		if (null == script) {
+			throw new AgnosticException("Script not found: " + name);
+		}
+		int ret = execBash(getProjectDir(parentDir), script, args);
+		if (0 != ret) {
+			throw new AgnosticException("Script failed, ret code: " + ret);
+		}
+		System.out.println("Script finished: " + name);
 	}
 
 	@Override

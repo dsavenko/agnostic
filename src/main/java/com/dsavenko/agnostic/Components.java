@@ -93,6 +93,14 @@ public class Components {
 		project.build(parent);
 	}
 
+	public void runScript(String projectName, String scriptName, String[] args) {
+		Project project = getProject(projectName);
+		if (null == project) {
+			throw new AgnosticException("Project not found: " + projectName);
+		}
+		project.runScript(parent, scriptName, args);
+	}
+
 	private List<Project> preparePredecessorsList(String projectName) {
 		Project project = getProject(projectName);
 		if (null == project) {

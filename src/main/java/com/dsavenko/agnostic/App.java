@@ -2,6 +2,7 @@ package com.dsavenko.agnostic;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 public class App {
 
@@ -12,9 +13,9 @@ public class App {
 			if (1 > args.length) {
 				help();
 			} else {
-				for (String cmd : args) {
-					runCmd(cmd);
-				}
+				String cmd = args[0];
+				String[] restArgs = Arrays.copyOfRange(args, 1, args.length);
+				runCmd(cmd, restArgs);
 			}
 		} catch (Throwable e) {
 			e.printStackTrace();
@@ -22,7 +23,7 @@ public class App {
 		System.exit(0);
 	}
 
-	private static void runCmd(String cmd) {
+	private static void runCmd(String cmd, String[] args) {
 		switch (cmd) {
 			case "checkout":
 				checkout();
@@ -32,6 +33,9 @@ public class App {
 				break;
 			case "build":
 				build();
+				break;
+			case "run":
+				runScript(args);
 				break;
 			default:
 				help();
@@ -75,7 +79,13 @@ public class App {
 
 	private static void help() {
 		System.out.println("java -jar agnostic.jar <command> [command] [command] ...\n" +
-			"Commands: help, checkout, build, build-up");
+			"Commands: help, checkout, build, build-up, run");
+	}
+
+	private static void runScript(String[] args) {
+		String name = args[0];
+		String[] restArgs = Arrays.copyOfRange(args, 1, args.length);
+		components(config()).runScript(currentProject(), name, restArgs);
 	}
 
 }

@@ -5,6 +5,15 @@ project:
   git: git@github.com:xored/peg.git
   build: |
     $FAN_DEV_HOME/bin/fan src/build.fan
+  scripts:
+    - name: copy-to
+      cmd: |
+        cp -R src/fan $1
+        cp -R src/test $1
+    - name: copy-from
+      cmd: |
+        cp -R $1/fan src
+        cp -R $1/test src
 
 ---
 project:
