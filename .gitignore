@@ -5,7 +5,6 @@ ag-info
 /aclocal.m4
 /autom4te.cache/
 /config.*
-/configure
 /m4/
 /stamp-h?
 .deps/
@@ -15,7 +14,6 @@ ag-info
 
 autoscan.log
 compile
-configure.ac
 depcomp
 install-sh
 missing
