@@ -5,16 +5,26 @@ COPTS=-O2
 CFLAGS=-g $(COPTS) -Wall
 
 INCLUDES = yaml/include
-LIBS = -lyaml
+
+LIB_OBJS = sds.o
+
+LIB_FILE=libagnostic.a
+
+LIBS = $(LIB_FILE) -lyaml
 
 PROGRAMS = \
 	ag-info
 	
 all: $(PROGRAMS)
 
-ag-%: %.c
+$(LIB_FILE): $(LIB_OBJS)
+	$(AR) rcs $@ $(LIB_OBJS)
+
+ag-%: %.c $(LIB_FILE)
 	$(CC) $(CFLAGS) -I$(INCLUDES) -o $@ $(filter %.c,$^) $(LIBS)
 
+sds.o: sds.h
+
 clean:
-	rm -f *.o $(PROGRAMS) 
+	rm -f *.o $(PROGRAMS) $(LIB_FILE)
 	rm -rf *.dSYM .deps .libs

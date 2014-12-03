@@ -4,6 +4,8 @@
 #include <stdarg.h>
 #include <stdbool.h>
 
+#include "sds.h"
+
 static void die (const char * format, ...) {
     va_list vargs;
     va_start (vargs, format);
@@ -81,6 +83,10 @@ static void unknown_cmd(const char* cmd) {
 }
 
 int main(int argc, char **av) {
+    sds mystring = sdsnew("Hello World!");
+    printf("%s\n", mystring);
+    sdsfree(mystring);
+
     const char **argv = (const char **) av;
 
     if (1 >= argc) {
