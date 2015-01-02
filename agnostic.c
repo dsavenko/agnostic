@@ -23,8 +23,10 @@ void ag_free_component(struct ag_component* c) {
         return;
     }
     sdsfree(c->name);
+    sdsfree(c->alias);
     sdsfree(c->description);
     sdsfree(c->git);
+    sdsfree(c->hg);
     sdsfree(c->build);
     ag_free_component_list(c->build_after, false);
 }
@@ -60,14 +62,22 @@ int ag_load(const char* file_name, struct ag_project** project) {
     enum load_state {
         unknown,
         name, 
+        alias, 
         description,
         git,
+        hg,
         build
     } state = unknown;
 
-    do {
+    bool eof = false;
+
+    while (!eof) {
         yaml_parser_scan(&parser, &token);
         switch(token.type) {
+            case YAML_STREAM_END_TOKEN:
+                eof = true;
+                break;
+
             case YAML_KEY_TOKEN:   
                 is_key = true;
                 break;
@@ -92,14 +102,17 @@ int ag_load(const char* file_name, struct ag_project** project) {
                     } else if (!strcmp(key, "name")) {
                         state = name;
 
+                    } else if (!strcmp(key, "alias")) {
+                        state = alias;
+
                     } else if (!strcmp(key, "description")) {
                         state = description;
 
                     } else if (!strcmp(key, "git")) {
                         state = git;
 
-                    } else if (!strcmp(key, "git")) {
-                        state = git;
+                    } else if (!strcmp(key, "hg")) {
+                        state = hg;
 
                     } else if (!strcmp(key, "build")) {
                         state = build;
@@ -115,12 +128,20 @@ int ag_load(const char* file_name, struct ag_project** project) {
                         (*c)->component->name = sdsnew((const char*)token.data.scalar.value);
                         break;
 
+                    case alias:
+                        (*c)->component->alias = sdsnew((const char*)token.data.scalar.value);
+                        break;
+
                     case description:
                         (*c)->component->description = sdsnew((const char*)token.data.scalar.value);
                         break;
                         
                     case git:
                         (*c)->component->git = sdsnew((const char*)token.data.scalar.value);
+                        break;
+                        
+                    case hg:
+                        (*c)->component->hg = sdsnew((const char*)token.data.scalar.value);
                         break;
                         
                     case build:
@@ -138,16 +159,12 @@ int ag_load(const char* file_name, struct ag_project** project) {
             default:
                 break;
         }
-        if(token.type != YAML_STREAM_END_TOKEN) {
-            yaml_token_delete(&token);
-        }
-    } while(token.type != YAML_STREAM_END_TOKEN);
-
-    yaml_token_delete(&token);
+        
+        yaml_token_delete(&token);
+    }
 
     yaml_parser_delete(&parser);
     fclose(fh);
-
     return 0;
 }
 

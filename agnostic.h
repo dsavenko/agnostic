@@ -8,8 +8,10 @@ struct ag_component_list;
 
 struct ag_component {
     sds name;
+    sds alias;
     sds description;
     sds git;
+    sds hg;
     sds build;
     struct ag_component_list* build_after;
 };

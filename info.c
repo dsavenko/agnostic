@@ -1,6 +1,8 @@
 
 #include "agnostic.h"
 
+#include <sys/param.h>
+#include <unistd.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,12 +16,36 @@ static void die (const char * format, ...) {
     exit (1);
 }
 
-static const char* find_config_file() {
-    return "ez/agnostic.yaml";
+static bool file_exist(const char* fname) {
+    return access(fname, F_OK) != -1;
 }
 
-static int checkout() { 
-    const char* cfg_file = find_config_file();
+static char* create_config_file_name() {
+    const int size = 2;
+    const char* files[size] = { "agnostic.yaml", "../agnostic.yaml" };
+    const char* relative = NULL;
+    for (int i = 0; i < 2; ++i) {
+        if (file_exist(files[i])) {
+            relative = files[i];
+            break;
+        }
+    }
+
+    if (!relative) {
+        return NULL;
+    }
+
+    char* absolute = (char*)malloc(sizeof(char) * (PATH_MAX+1));
+    if (realpath(relative, absolute)) {
+        return absolute;
+    }
+
+    free(absolute);
+    return NULL;
+}
+
+static void checkout() { 
+    char* cfg_file = create_config_file_name();
     if (!cfg_file) {
         die("Config file not found");
     }
@@ -36,7 +62,9 @@ static int checkout() {
     }
 
     ag_free(project);
-    return 0;
+    free(cfg_file);
+
+    exit(0);
 }
 
 static void help() {
@@ -45,6 +73,17 @@ static void help() {
 
 static void unknown_cmd(const char* cmd) {
     die("Unknown command: %s", cmd);
+}
+
+static void config_file() {
+    char* f = create_config_file_name();
+    if (!f) {
+        fprintf(stderr, "Config file not found\n");
+        exit(1);
+    }
+    printf("%s\n", f);
+    free(f);
+    exit(0);
 }
 
 int main(int argc, char **av) {
@@ -62,9 +101,13 @@ int main(int argc, char **av) {
 
         if (!strcmp(cmd, "checkout")) {
             checkout();
-            exit(0);
+
+        } else if (!strcmp(cmd, "config-file")) {
+            config_file();
+            
         } else if (!strcmp(cmd, "help")) {
             help();
+
         } else {
             unknown_cmd(cmd);
         }

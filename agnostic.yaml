@@ -1,6 +1,7 @@
 ---
 component:
   name: PegParser
+  alias: peg
   description: "Xored PEG parser implementation"
   git: git@github.com:xored/peg.git
   build: |
@@ -63,6 +64,7 @@ component:
 ---
 component:
   name: LogAnalyzer
+  alias: ui
   description: ""
   git: git@github.com:xored/LogAnalyserUI.git
   build: |
@@ -77,6 +79,7 @@ component:
 ---
 component:
   name: la-lib
+  alias: lib
   description: "Log Analyzer Library"
   git: git@github.com:xored/LogAnalyser.git
   build: |
@@ -88,6 +91,7 @@ component:
 ---
 component:
   name: LogAnalyzerJEE
+  alias: jee
   description: ""
   git: git@github.com:xored/log-analyser-jee.git
   build: |
@@ -101,6 +105,7 @@ component:
 ---
 component:
   name: log-analyzer-cli
+  alias: cli
   description: ""
   git: git@github.com:xored/LogAnalyserCLI.git
   build: |
@@ -122,6 +127,7 @@ component:
 ---
 component:
   name: EZCommit-UI
+  alias: ez
   description: ""
   git: git@github.com:xored/ezcommit-ui.git
   build: |
@@ -132,6 +138,7 @@ component:
 ---
 component:
   name: LogAnalyzerPlugin
+  alias: plugin
   description: ""
   git: git@github.com:xored/LogAnalyserPlugin.git
   build: |
@@ -144,6 +151,7 @@ component:
 ---
 component:
   name: LogAnalyserGrammars
+  alias: grammars
   description: "Grammars for Log Analyser"
   git: git@github.com:xored/LogAnalyserGrammars.git
   build: ""
@@ -151,6 +159,7 @@ component:
 ---
 component:
   name: LogAnalyserTests
+  alias: tests
   description: "Integration tests for Log Analyser"
   git: git@github.com:xored/LogAnalyserTests.git
   build: |
