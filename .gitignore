@@ -1,2 +1,4 @@
 ag-info
 *.dSYM/
+*.o
+*.a

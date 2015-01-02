@@ -1,10 +1,10 @@
 
-#include <stdio.h>
-#include <yaml.h>
-#include <stdarg.h>
-#include <stdbool.h>
+#include "agnostic.h"
 
-#include "sds.h"
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 static void die (const char * format, ...) {
     va_list vargs;
@@ -24,53 +24,18 @@ static int checkout() {
         die("Config file not found");
     }
 
-    FILE *fh = fopen(cfg_file, "r");
-    yaml_parser_t parser;
-    yaml_token_t token;
-
-    if (!yaml_parser_initialize(&parser)) {
-        die("Failed to initialize parser!");
-    }
-    if (fh == NULL) {
-        die("Failed to open file %s", cfg_file);
+    struct ag_project* project = NULL;
+    if (ag_load(cfg_file, &project)) {
+        die("Failed to load the project");
     }
 
-    yaml_parser_set_input_file(&parser, fh);
+    struct ag_component_list* c = project->components;
+    while (c) {
+        printf("%s\n", c->component->name);
+        c = c->next;
+    }
 
-    bool is_key = false;
-    bool is_name = false;
-
-    do {
-        yaml_parser_scan(&parser, &token);
-        switch(token.type) {
-            case YAML_KEY_TOKEN:   
-                is_key = true;
-                break;
-            case YAML_VALUE_TOKEN: 
-                is_key = false;
-                break;
-            case YAML_SCALAR_TOKEN:  
-                if (is_key) {
-                    is_name = !strcmp((const char *)token.data.scalar.value, "name");
-                } else {
-                    if (is_name) {
-                        printf("%s\n", token.data.scalar.value);
-                        is_name = false;
-                    }
-                }
-                break;
-            default:
-                break;
-        }
-        if(token.type != YAML_STREAM_END_TOKEN) {
-            yaml_token_delete(&token);
-        }
-    } while(token.type != YAML_STREAM_END_TOKEN);
-
-    yaml_token_delete(&token);
-
-    yaml_parser_delete(&parser);
-    fclose(fh);
+    ag_free(project);
     return 0;
 }
 
@@ -83,10 +48,6 @@ static void unknown_cmd(const char* cmd) {
 }
 
 int main(int argc, char **av) {
-    sds mystring = sdsnew("Hello World!");
-    printf("%s\n", mystring);
-    sdsfree(mystring);
-
     const char **argv = (const char **) av;
 
     if (1 >= argc) {
