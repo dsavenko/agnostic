@@ -1,4 +1,5 @@
-ag-info
+ag
 *.dSYM/
 *.o
 *.a
+tmp/

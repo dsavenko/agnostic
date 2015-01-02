@@ -22,6 +22,7 @@ struct ag_component_list {
 };
 
 struct ag_project {
+    int component_count;
     struct ag_component_list* components;
 };
 

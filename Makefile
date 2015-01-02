@@ -13,7 +13,7 @@ LIB_FILE=libagnostic.a
 LIBS = $(LIB_FILE) -lyaml
 
 PROGRAMS = \
-	ag-info
+	ag
 	
 all: $(PROGRAMS)
 
@@ -21,6 +21,9 @@ $(LIB_FILE): $(LIB_OBJS)
 	$(AR) rcs $@ $(LIB_OBJS)
 
 ag-%: %.c $(LIB_FILE)
+	$(CC) $(CFLAGS) -I$(INCLUDES) -o $@ $(filter %.c,$^) $(LIBS)
+
+ag: ag.c $(LIB_FILE)
 	$(CC) $(CFLAGS) -I$(INCLUDES) -o $@ $(filter %.c,$^) $(LIBS)
 
 sds.o: sds.h

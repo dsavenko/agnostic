@@ -98,6 +98,7 @@ int ag_load(const char* file_name, struct ag_project** project) {
                             *c = (struct ag_component_list*)calloc(1, sizeof(struct ag_component_list));
                         }
                         (*c)->component = (struct ag_component*)calloc(1, sizeof(struct ag_component));
+                        (*project)->component_count++;
 
                     } else if (!strcmp(key, "name")) {
                         state = name;
@@ -167,4 +168,3 @@ int ag_load(const char* file_name, struct ag_project** project) {
     fclose(fh);
     return 0;
 }
-
