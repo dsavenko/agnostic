@@ -22,7 +22,7 @@ void clone() {
 
     struct ag_component_list* l = project->components;
     int i = 0;
-    int* pids = (int*)malloc(sizeof(int) * project->component_count);
+    pid_t* pids = (pid_t*)malloc(sizeof(pid_t) * project->component_count);
     sds* names = (sds*)malloc(sizeof(sds) * project->component_count);
     sds* cmdlines = (sds*)malloc(sizeof(sds) * project->component_count);
     sds* aliases = (sds*)malloc(sizeof(sds) * project->component_count);
@@ -74,7 +74,7 @@ void clone() {
                         if (aliases[i]) {
                             if (symlink(names[i], aliases[i])) {
                                 perror(NULL);
-                                fprintf(stderr, "Failed to create alias symlink for %s\n", names[i]);
+                                fprintf(stderr, "Failed to create alias symlink %s -> %s\n", aliases[i], names[i]);
                             }
                         }
                     }
@@ -97,4 +97,3 @@ void clone() {
 
     exit(0);
 }
-
