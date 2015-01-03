@@ -1,5 +1,6 @@
 
 #include "agnostic.h"
+#include "run-cmd.h"
 
 #include <sys/param.h>
 #include <sys/wait.h>
@@ -45,7 +46,7 @@ static char* create_config_file_name() {
     return NULL;
 }
 
-static void checkout() { 
+static void clone() { 
     char* cfg_file = create_config_file_name();
     if (!cfg_file) {
         die("Config file not found");
@@ -61,6 +62,7 @@ static void checkout() {
     int* pids = (int*)malloc(sizeof(int) * project->component_count);
     sds* names = (sds*)malloc(sizeof(sds) * project->component_count);
     sds* cmdlines = (sds*)malloc(sizeof(sds) * project->component_count);
+    sds* aliases = (sds*)malloc(sizeof(sds) * project->component_count);
     struct ag_component* c;
     while (l) {
         c = l->component;
@@ -77,20 +79,18 @@ static void checkout() {
         sds vcs = sdsdup(c->git ? c->git : c->hg);
         sds cmdline = sdscatprintf(sdsempty(), "%s clone \"%s\" \"%s\"", vcs_exe, vcs, c->name);
 
-        printf("Starting checking out %s\n", c->name);
-        int child_pid = fork();
-        if (0 == child_pid) {
-            fclose(stdout);
-            fclose(stderr);
-            execl("/bin/sh", "sh", "-c", cmdline, (char*)NULL);
-            fprintf(stderr, "Failed to run checkout for %s\n", c->name);
+        printf("Starting cloning %s\n", c->name);
+        int child_pid = run_cmd_line(cmdline);
+        if (-1 == child_pid) {
             perror(NULL);
+            fprintf(stderr, "Failed to run clone for %s\n", c->name);
             exit(1);
         }
 
         pids[i] = child_pid;
         names[i] = c->name;
         cmdlines[i] = cmdline;
+        aliases[i] = c->alias;
 
         l = l->next;
         ++i;
@@ -105,12 +105,18 @@ static void checkout() {
             if (pids[i] == pid) {
                 if (WIFEXITED(status)) {
                     if (WEXITSTATUS(status)) {
-                        printf("Failed to check out %s. Please, run this manually:\n    %s\n", names[i], cmdlines[i]);
+                        printf("Failed to clone %s. Please, run it manually:\n    %s\n", names[i], cmdlines[i]);
                     } else {
-                        printf("Successfully checked out %s\n", names[i]);
+                        printf("Successfully cloned %s\n", names[i]);
+                        if (aliases[i]) {
+                            if (symlink(names[i], aliases[i])) {
+                                perror(NULL);
+                                fprintf(stderr, "Failed to create alias symlink for %s\n", names[i]);
+                            }
+                        }
                     }
                 } else {
-                    printf("Stopped checking out %s\n", names[i]);
+                    printf("Stopped cloning %s\n", names[i]);
                 }
                 break;
             }
@@ -163,8 +169,8 @@ int main(int argc, char **av) {
 
         const char *cmd = *argv;
 
-        if (!strcmp(cmd, "checkout")) {
-            checkout();
+        if (!strcmp(cmd, "clone")) {
+            clone();
 
         } else if (!strcmp(cmd, "config-file")) {
             config_file();
