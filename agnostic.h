@@ -30,6 +30,7 @@ struct ag_project {
 // Return 0 on success, or error code. 
 int ag_load(const char* file_name, struct ag_project** project);
 
+// Frees the whole project structure.
 void ag_free(struct ag_project* project);
 
 // Searches for the project file. 

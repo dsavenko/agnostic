@@ -1,22 +1,13 @@
 
 #include "agnostic.h"
-#include "run-cmd.h"
+#include "common.h"
 
 #include <sys/param.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-static void die (const char * format, ...) {
-    va_list vargs;
-    va_start (vargs, format);
-    vfprintf (stderr, format, vargs);
-    fprintf (stderr, "\n");
-    exit (1);
-}
 
 static void clone() { 
     char* cfg_file = ag_create_project_file_name();

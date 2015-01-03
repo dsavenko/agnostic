@@ -6,7 +6,7 @@ CFLAGS=-g $(COPTS) -Wall
 
 INCLUDES = yaml/include
 
-LIB_OBJS = sds.o agnostic.o run-cmd.o
+LIB_OBJS = sds.o agnostic.o common.o
 
 LIB_FILE = libagnostic.a
 
@@ -30,7 +30,7 @@ sds.o: sds.h
 
 agnostic.o: agnostic.h sds.h
 
-run-cmd.o: run-cmd.h
+common.o: common.h
 
 clean:
 	rm -f *.o $(PROGRAMS) $(LIB_FILE)
