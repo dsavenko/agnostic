@@ -3,6 +3,9 @@
 
 #include <yaml.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/param.h>
 
 void ag_free_component(struct ag_component* c);
 
@@ -168,3 +171,32 @@ int ag_load(const char* file_name, struct ag_project** project) {
     fclose(fh);
     return 0;
 }
+
+static bool file_exist(const char* fname) {
+    return access(fname, F_OK) != -1;
+}
+
+char* ag_create_project_file_name() {
+    const int size = 2;
+    const char* files[size] = { "agnostic.yaml", "../agnostic.yaml" };
+    const char* relative = NULL;
+    for (int i = 0; i < 2; ++i) {
+        if (file_exist(files[i])) {
+            relative = files[i];
+            break;
+        }
+    }
+
+    if (!relative) {
+        return NULL;
+    }
+
+    char* absolute = (char*)malloc(sizeof(char) * (PATH_MAX+1));
+    if (realpath(relative, absolute)) {
+        return absolute;
+    }
+
+    free(absolute);
+    return NULL;
+}
+

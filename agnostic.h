@@ -32,4 +32,8 @@ int ag_load(const char* file_name, struct ag_project** project);
 
 void ag_free(struct ag_project* project);
 
+// Searches for the project file. 
+// Returns a newly created absolute path for the project file, or NULL, if not found.
+char* ag_create_project_file_name();
+
 #endif /* AGNOSTIC_H */

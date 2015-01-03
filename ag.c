@@ -18,38 +18,10 @@ static void die (const char * format, ...) {
     exit (1);
 }
 
-static bool file_exist(const char* fname) {
-    return access(fname, F_OK) != -1;
-}
-
-static char* create_config_file_name() {
-    const int size = 2;
-    const char* files[size] = { "agnostic.yaml", "../agnostic.yaml" };
-    const char* relative = NULL;
-    for (int i = 0; i < 2; ++i) {
-        if (file_exist(files[i])) {
-            relative = files[i];
-            break;
-        }
-    }
-
-    if (!relative) {
-        return NULL;
-    }
-
-    char* absolute = (char*)malloc(sizeof(char) * (PATH_MAX+1));
-    if (realpath(relative, absolute)) {
-        return absolute;
-    }
-
-    free(absolute);
-    return NULL;
-}
-
 static void clone() { 
-    char* cfg_file = create_config_file_name();
+    char* cfg_file = ag_create_project_file_name();
     if (!cfg_file) {
-        die("Config file not found");
+        die("Project file not found");
     }
 
     struct ag_project* project = NULL;
@@ -138,17 +110,17 @@ static void clone() {
 static void help() {
     printf("%s\n%s\n", 
         "ag-info <command>", 
-        "Recognized commands: vcs, config-file, help.");
+        "Recognized commands: clone, project, help.");
 }
 
 static void unknown_cmd(const char* cmd) {
     die("Unknown command: %s", cmd);
 }
 
-static void config_file() {
-    char* f = create_config_file_name();
+static void project_file() {
+    char* f = ag_create_project_file_name();
     if (!f) {
-        fprintf(stderr, "Config file not found\n");
+        fprintf(stderr, "Project file not found\n");
         exit(1);
     }
     printf("%s\n", f);
@@ -172,8 +144,8 @@ int main(int argc, char **av) {
         if (!strcmp(cmd, "clone")) {
             clone();
 
-        } else if (!strcmp(cmd, "config-file")) {
-            config_file();
+        } else if (!strcmp(cmd, "project")) {
+            project_file();
             
         } else if (!strcmp(cmd, "help")) {
             help();
