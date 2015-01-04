@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <sys/param.h>
 
 void ag_free_component(struct ag_component* c);
 
@@ -40,6 +39,14 @@ void ag_free(struct ag_project* project) {
     }
     ag_free_component_list(project->components, true);
     free(project);
+}
+
+int ag_load_default(struct ag_project** project) {
+    char cfg_file[PATH_MAX + 1];
+    if (ag_find_project_file(cfg_file)) {
+        return 3;
+    }
+    return ag_load(cfg_file, project);
 }
 
 int ag_load(const char* file_name, struct ag_project** project) {
@@ -176,7 +183,7 @@ static bool file_exist(const char* fname) {
     return access(fname, F_OK) != -1;
 }
 
-char* ag_create_project_file_name() {
+int ag_find_project_file(char* buf) {
     const int size = 2;
     const char* files[size] = { "agnostic.yaml", "../agnostic.yaml" };
     const char* relative = NULL;
@@ -186,17 +193,28 @@ char* ag_create_project_file_name() {
             break;
         }
     }
-
     if (!relative) {
+        return 1;
+    }
+    return realpath(relative, buf) ? 0 : 2;
+}
+
+struct ag_component* ag_find_current_component(struct ag_project* project) {
+    char* buf = getcwd(NULL, 0);
+    if (!buf) {
         return NULL;
     }
-
-    char* absolute = (char*)malloc(sizeof(char) * (PATH_MAX+1));
-    if (realpath(relative, absolute)) {
-        return absolute;
+    char* name = strrchr(buf, '/');
+    name = name ? (name + 1) : buf;
+    struct ag_component_list* l = project->components;
+    struct ag_component* ret = NULL;
+    while (l && !ret) {
+        if (!strcmp(l->component->name, name)) {
+            ret = l->component;
+        }
+        l = l->next;
     }
-
-    free(absolute);
-    return NULL;
+    free(buf);
+    return ret;
 }
 

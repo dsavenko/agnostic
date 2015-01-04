@@ -7,6 +7,7 @@
 #include <string.h>
 
 extern void clone();
+extern void component();
 
 static void help() {
     printf("%s\n%s\n", 
@@ -19,13 +20,11 @@ static void unknown_cmd(const char* cmd) {
 }
 
 static void project_file() {
-    char* f = ag_create_project_file_name();
-    if (!f) {
-        fprintf(stderr, "Project file not found\n");
-        exit(1);
+    char f[PATH_MAX + 1];
+    if (ag_find_project_file(f)) {
+        die("Project file not found");
     }
     printf("%s\n", f);
-    free(f);
     exit(0);
 }
 
@@ -45,6 +44,9 @@ int main(int argc, char **av) {
         if (!strcmp(cmd, "clone")) {
             clone();
 
+        } else if (!strcmp(cmd, "component")) {
+            component();
+            
         } else if (!strcmp(cmd, "project")) {
             project_file();
             

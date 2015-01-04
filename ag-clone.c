@@ -10,14 +10,9 @@
 #include <string.h>
 
 void clone() { 
-    char* cfg_file = ag_create_project_file_name();
-    if (!cfg_file) {
-        die("Project file not found");
-    }
-
     struct ag_project* project = NULL;
-    if (ag_load(cfg_file, &project)) {
-        die("Failed to load the project");
+    if (ag_load_default(&project)) {
+        die("Failed to load project");
     }
 
     struct ag_component_list* l = project->components;
@@ -93,7 +88,6 @@ void clone() {
     }
     free(cmdlines);
     ag_free(project);
-    free(cfg_file);
 
     exit(0);
 }

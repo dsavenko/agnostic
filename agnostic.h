@@ -3,6 +3,7 @@
 
 #include "sds.h"
 #include <stdbool.h>
+#include <sys/param.h>
 
 struct ag_component_list;
 
@@ -26,15 +27,21 @@ struct ag_project {
     struct ag_component_list* components;
 };
 
-// Creates a new project. If project_list points to another project, the pointer will be lost.
+// Creates a new project. If project points to another project, the pointer will be lost.
 // Return 0 on success, or error code. 
 int ag_load(const char* file_name, struct ag_project** project);
+
+// Tries to find default project file and load project from it.
+int ag_load_default(struct ag_project** project);
 
 // Frees the whole project structure.
 void ag_free(struct ag_project* project);
 
 // Searches for the project file. 
-// Returns a newly created absolute path for the project file, or NULL, if not found.
-char* ag_create_project_file_name();
+// Fills the buffer with the file name on success. Otherwise, returns non-zero. buf should be able to hold at least PATH_MAX characters. 
+int ag_find_project_file(char* buf);
+
+// Returns current component of the given project.
+struct ag_component* ag_find_current_component(struct ag_project* project);
 
 #endif /* AGNOSTIC_H */
