@@ -30,5 +30,4 @@ void component() {
         die("Component not found");
     }
     ag_free(project);
-    exit(0);
 }

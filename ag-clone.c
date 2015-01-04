@@ -87,6 +87,4 @@ void clone() {
     }
     free(cmdlines);
     ag_free(project);
-
-    exit(0);
 }
