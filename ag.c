@@ -20,11 +20,12 @@ static void unknown_cmd(const char* cmd) {
 }
 
 static void project_file() {
-    char f[PATH_MAX + 1];
-    if (ag_find_project_file(f)) {
+    char* f = ag_find_project_file();
+    if (!f) {
         die("Project file not found");
     }
     printf("%s\n", f);
+    free(f);
     exit(0);
 }
 

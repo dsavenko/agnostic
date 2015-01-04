@@ -42,11 +42,13 @@ void ag_free(struct ag_project* project) {
 }
 
 int ag_load_default(struct ag_project** project) {
-    char cfg_file[PATH_MAX + 1];
-    if (ag_find_project_file(cfg_file)) {
+    char* cfg_file = ag_find_project_file();
+    if (!cfg_file) {
         return 3;
     }
-    return ag_load(cfg_file, project);
+    int ret = ag_load(cfg_file, project);
+    free(cfg_file);
+    return ret;
 }
 
 int ag_load(const char* file_name, struct ag_project** project) {
@@ -183,7 +185,7 @@ static bool file_exist(const char* fname) {
     return access(fname, F_OK) != -1;
 }
 
-int ag_find_project_file(char* buf) {
+char* ag_find_project_file() {
     const int size = 2;
     const char* files[size] = { "agnostic.yaml", "../agnostic.yaml" };
     const char* relative = NULL;
@@ -194,9 +196,9 @@ int ag_find_project_file(char* buf) {
         }
     }
     if (!relative) {
-        return 1;
+        return NULL;
     }
-    return realpath(relative, buf) ? 0 : 2;
+    return realpath(relative, NULL);
 }
 
 struct ag_component* ag_find_current_component(struct ag_project* project) {

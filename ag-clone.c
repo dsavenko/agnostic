@@ -2,7 +2,6 @@
 #include "agnostic.h"
 #include "common.h"
 
-#include <sys/param.h>
 #include <sys/wait.h>
 #include <unistd.h>
 #include <stdio.h>

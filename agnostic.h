@@ -3,7 +3,6 @@
 
 #include "sds.h"
 #include <stdbool.h>
-#include <sys/param.h>
 
 struct ag_component_list;
 
@@ -38,8 +37,8 @@ int ag_load_default(struct ag_project** project);
 void ag_free(struct ag_project* project);
 
 // Searches for the project file. 
-// Fills the buffer with the file name on success. Otherwise, returns non-zero. buf should be able to hold at least PATH_MAX characters. 
-int ag_find_project_file(char* buf);
+// Returns full path to the project file, which may later be freed, or NULL, if not found.
+char* ag_find_project_file();
 
 // Returns current component of the given project.
 struct ag_component* ag_find_current_component(struct ag_project* project);
