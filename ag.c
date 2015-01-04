@@ -34,9 +34,7 @@ static struct cmd_struct commands[] = {
     };
 
 static void help() {
-    printf("%s\n%s", 
-        "ag-info <command>", 
-        "Recognized commands: ");
+    printf("%s\n%s", "ag <command>", "Recognized commands: ");
     for (int i = 0; i < ARRAY_SIZE(commands); ++i) {
         printf("%s ", (commands + i)->name);
     }
