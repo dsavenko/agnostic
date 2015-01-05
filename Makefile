@@ -6,7 +6,7 @@ CFLAGS=-g $(COPTS) -Wall
 
 INCLUDES = yaml/include
 
-LIB_OBJS = sds.o agnostic.o common.o ag-clone.o ag-component.o
+LIB_OBJS = agnostic.o common.o ag-clone.o ag-component.o
 
 LIB_FILE = libagnostic.a
 
@@ -26,9 +26,7 @@ ag-%: %.c $(LIB_FILE)
 ag: ag.c $(LIB_FILE)
 	$(CC) $(CFLAGS) -I$(INCLUDES) -o $@ $(filter %.c,$^) $(LIBS)
 
-sds.o: sds.h
-
-agnostic.o: agnostic.h sds.h
+agnostic.o: agnostic.h
 
 common.o: common.h
 

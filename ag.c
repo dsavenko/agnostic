@@ -6,7 +6,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-
 struct cmd_struct {
     const char* name;
     void (*fn)();

@@ -1,18 +1,17 @@
 #ifndef AGNOSTIC_H
 #define AGNOSTIC_H
 
-#include "sds.h"
 #include <stdbool.h>
 
 struct ag_component_list;
 
 struct ag_component {
-    sds name;
-    sds alias;
-    sds description;
-    sds git;
-    sds hg;
-    sds build;
+    char* name;
+    char* alias;
+    char* description;
+    char* git;
+    char* hg;
+    char* build;
     struct ag_component_list* build_after;
 };
 

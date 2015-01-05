@@ -24,12 +24,12 @@ void ag_free_component(struct ag_component* c) {
     if (!c) {
         return;
     }
-    sdsfree(c->name);
-    sdsfree(c->alias);
-    sdsfree(c->description);
-    sdsfree(c->git);
-    sdsfree(c->hg);
-    sdsfree(c->build);
+    free(c->name);
+    free(c->alias);
+    free(c->description);
+    free(c->git);
+    free(c->hg);
+    free(c->build);
     ag_free_component_list(c->build_after, false);
 }
 
@@ -138,27 +138,27 @@ int ag_load(const char* file_name, struct ag_project** project) {
 
                     switch (state) {
                     case name:
-                        (*c)->component->name = sdsnew((const char*)token.data.scalar.value);
+                        (*c)->component->name = strdup((const char*)token.data.scalar.value);
                         break;
 
                     case alias:
-                        (*c)->component->alias = sdsnew((const char*)token.data.scalar.value);
+                        (*c)->component->alias = strdup((const char*)token.data.scalar.value);
                         break;
 
                     case description:
-                        (*c)->component->description = sdsnew((const char*)token.data.scalar.value);
+                        (*c)->component->description = strdup((const char*)token.data.scalar.value);
                         break;
                         
                     case git:
-                        (*c)->component->git = sdsnew((const char*)token.data.scalar.value);
+                        (*c)->component->git = strdup((const char*)token.data.scalar.value);
                         break;
                         
                     case hg:
-                        (*c)->component->hg = sdsnew((const char*)token.data.scalar.value);
+                        (*c)->component->hg = strdup((const char*)token.data.scalar.value);
                         break;
                         
                     case build:
-                        (*c)->component->build = sdsnew((const char*)token.data.scalar.value);
+                        (*c)->component->build = strdup((const char*)token.data.scalar.value);
                         break;
 
                     case unknown:

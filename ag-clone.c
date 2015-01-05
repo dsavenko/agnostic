@@ -17,9 +17,9 @@ void clone() {
     struct ag_component_list* l = project->components;
     int i = 0;
     pid_t* pids = (pid_t*)malloc(sizeof(pid_t) * project->component_count);
-    sds* names = (sds*)malloc(sizeof(sds) * project->component_count);
-    sds* cmdlines = (sds*)malloc(sizeof(sds) * project->component_count);
-    sds* aliases = (sds*)malloc(sizeof(sds) * project->component_count);
+    char** names = (char**)malloc(sizeof(char*) * project->component_count);
+    char** cmdlines = (char**)malloc(sizeof(char*) * project->component_count);
+    char** aliases = (char**)malloc(sizeof(char*) * project->component_count);
     struct ag_component* c;
     while (l) {
         c = l->component;
@@ -33,8 +33,11 @@ void clone() {
             fprintf(stderr, "Unknown VCS for %s\n", c->name);
             continue;
         }
-        sds vcs = sdsdup(c->git ? c->git : c->hg);
-        sds cmdline = sdscatprintf(sdsempty(), "%s clone \"%s\" \"%s\"", vcs_exe, vcs, c->name);
+        char* vcs = c->git ? c->git : c->hg;
+        char* cmdline = NULL;
+        if (-1 == asprintf(&cmdline, "%s clone \"%s\" \"%s\"", vcs_exe, vcs, c->name)) {
+            die("Couldn't allocate memory for command line");
+        }
 
         printf("Starting cloning %s\n", c->name);
         int child_pid = run_cmd_line(cmdline);
@@ -83,7 +86,7 @@ void clone() {
     free(pids);
     free(names);
     for (int i = 0; i < project->component_count; ++i) {
-        sdsfree(cmdlines[i]);
+        free(cmdlines[i]);
     }
     free(cmdlines);
     ag_free(project);
