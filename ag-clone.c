@@ -14,15 +14,13 @@ void clone(int argc, const char** argv) {
         die("Failed to load project");
     }
 
-    struct ag_component_list* l = project->components;
-    int i = 0;
     pid_t* pids = (pid_t*)malloc(sizeof(pid_t) * project->component_count);
     char** names = (char**)malloc(sizeof(char*) * project->component_count);
     char** cmdlines = (char**)malloc(sizeof(char*) * project->component_count);
     char** aliases = (char**)malloc(sizeof(char*) * project->component_count);
-    struct ag_component* c;
-    while (l) {
-        c = l->component;
+
+    for (int i = 0; i < project->component_count; ++i) {
+        struct ag_component* c = project->components[i];
 
         const char* vcs_exe = NULL;
         if (c->git) {
@@ -51,9 +49,6 @@ void clone(int argc, const char** argv) {
         names[i] = c->name;
         cmdlines[i] = cmdline;
         aliases[i] = c->alias;
-
-        l = l->next;
-        ++i;
     }
 
     int process_left = project->component_count;
