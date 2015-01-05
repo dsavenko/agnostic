@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-void clone() { 
+void clone(int argc, const char** argv) { 
     struct ag_project* project = NULL;
     if (ag_load_default(&project)) {
         die("Failed to load project");

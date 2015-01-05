@@ -6,7 +6,7 @@ CFLAGS=-g $(COPTS) -Wall
 
 INCLUDES = yaml/include
 
-LIB_OBJS = agnostic.o common.o ag-clone.o ag-component.o ag-build.o
+LIB_OBJS = agnostic.o common.o ag-clone.o ag-component.o ag-build.o ag-project.o
 
 LIB_FILE = libagnostic.a
 

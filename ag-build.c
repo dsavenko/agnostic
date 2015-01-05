@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <sys/wait.h>
 
-void build() {
+void build(int argc, const char** argv) {
     struct ag_project* project = NULL;
     if (ag_load_default(&project)) {
         die("Failed to load project");
