@@ -13,6 +13,7 @@ struct cmd_struct {
 
 extern void clone();
 extern void component();
+extern void build();
 
 static void help();
 
@@ -29,6 +30,7 @@ static struct cmd_struct commands[] = {
         { "clone", &clone },
         { "component", &component },
         { "project", &project_file },
+        { "build", &build },
         { "help", &help }
     };
 
