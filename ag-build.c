@@ -10,7 +10,14 @@ void build(int argc, const char** argv) {
     if (ag_load_default(&project)) {
         die("Failed to load project");
     }
-    struct ag_component* c = ag_find_current_component(project);
+
+    struct ag_component* c = NULL;
+    if (1 <= argc) {
+        c = ag_find_component(project, *argv);
+    } else {
+        c = ag_find_current_component(project);
+    }
+
     if (!c) {
         die("Component not found");
     }
@@ -19,7 +26,14 @@ void build(int argc, const char** argv) {
     }
 
     char* script = create_temp_file("agnostic-script-", c->build);
-    pid_t child_pid = run_script(script);
+    if (!script) {
+        die("Unable to create build script.");
+    }
+    char* parent_dir = ag_component_dir(project, c);
+    if (!parent_dir) {
+        die("Unable to find parent directory of the component.");
+    }
+    pid_t child_pid = run_script(parent_dir, script);
     if (-1 == child_pid) {
         perror(NULL);
         die("Failed to run build");
@@ -29,5 +43,6 @@ void build(int argc, const char** argv) {
 
     remove(script);
     free(script);
+    free(parent_dir);
     ag_free(project);    
 }

@@ -2,6 +2,8 @@
 #include "agnostic.h"
 
 #include <yaml.h>
+
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -37,6 +39,8 @@ void ag_free(struct ag_project* project) {
     if (!project) {
         return;
     }
+    free(project->dir);
+    free(project->file);
     ag_free_component_list(project->components, true);
     free(project);
 }
@@ -51,10 +55,45 @@ int ag_load_default(struct ag_project** project) {
     return ret;
 }
 
+static char* parent_dir(char* absolute_path) {
+    char* t = strrchr(absolute_path, '/');
+    *t = '\0';
+    char* ret = strdup(absolute_path);
+    *t = '/';
+    if (!ret) {
+        return NULL;
+    }
+    if (!ret[0]) {
+        free(ret);
+        ret = strdup("/");
+    }
+    return ret;
+}
+
 int ag_load(const char* file_name, struct ag_project** project) {
+    assert(file_name);
+
     FILE *fh = fopen(file_name, "r");
     if (!fh) {
         return 1;
+    }
+
+    *project = (struct ag_project*)calloc(1, sizeof(struct ag_project));
+    if ('/' == file_name[0]) {
+        (*project)->file = strdup(file_name);
+    } else {
+        (*project)->file = realpath(file_name, NULL);
+    }
+    if (!(*project)->file) {
+        free(*project);
+        return 3;
+    }
+
+    (*project)->dir = parent_dir((*project)->file);
+    if (!(*project)->dir) {
+        free((*project)->file);
+        free(*project);
+        return 4;
     }
 
     yaml_parser_t parser;
@@ -68,7 +107,6 @@ int ag_load(const char* file_name, struct ag_project** project) {
 
     bool is_key = false;
 
-    *project = (struct ag_project*)calloc(1, sizeof(struct ag_project));
     struct ag_component_list** c = &((*project)->components);
 
     enum load_state {
@@ -202,21 +240,43 @@ char* ag_find_project_file() {
 }
 
 struct ag_component* ag_find_current_component(struct ag_project* project) {
+    assert(project);
+
     char* buf = getcwd(NULL, 0);
     if (!buf) {
         return NULL;
     }
     char* name = strrchr(buf, '/');
     name = name ? (name + 1) : buf;
+    struct ag_component* ret = ag_find_component(project, name);
+    free(buf);
+    return ret;
+}
+
+struct ag_component* ag_find_component(struct ag_project* project, const char* name_or_alias) {
+    assert(project);
+    assert(name_or_alias);
+
     struct ag_component_list* l = project->components;
     struct ag_component* ret = NULL;
     while (l && !ret) {
-        if (!strcmp(l->component->name, name)) {
+        if ((l->component->name && !strcmp(l->component->name, name_or_alias)) || 
+            (l->component->alias && !strcmp(l->component->alias, name_or_alias))) {
             ret = l->component;
         }
         l = l->next;
     }
-    free(buf);
+    return ret;
+}
+
+char* ag_component_dir(struct ag_project* project, struct ag_component* component) {
+    assert(project);
+    assert(project->dir);
+    assert(component);
+    assert(component->name);
+
+    char* ret = NULL;
+    asprintf(&ret, "%s/%s", project->dir, component->name);
     return ret;
 }
 

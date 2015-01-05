@@ -44,11 +44,14 @@ char* create_temp_file(const char* prefix, const char* content) {
     return fname;
 }
 
-pid_t run_script(const char* script_file_name) {
+pid_t run_script(const char* dir, const char* script_file_name) {
     assert(script_file_name);
 
     pid_t child_pid = fork();
     if (0 == child_pid) {
+        if (dir && chdir(dir)) {
+            return -1;
+        }
         execl("/bin/sh", "sh", "-xe", script_file_name, (char*)NULL);
         return -1;
     }
