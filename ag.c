@@ -8,6 +8,7 @@
 
 struct cmd_struct {
     const char* name;
+    const char* shortcut;
     void (*fn)(int argc, const char** argv);
 };
 
@@ -19,25 +20,24 @@ extern void project(int argc, const char** argv);
 static void help(int argc, const char** argv);
 
 static struct cmd_struct commands[] = {
-        { "clone", &clone },
-        { "component", &component },
-        { "project", &project },
-        { "build", &build },
-        { "help", &help }
+        { "clone", "", &clone },
+        { "component", "comp", &component },
+        { "project", "proj", &project },
+        { "build", "", &build },
+        { "help", "", &help }
     };
 
 static void help(int argc, const char** argv) {
     printf("%s\n%s", "ag <command>", "Recognized commands: ");
     for (int i = 0; i < ARRAY_SIZE(commands); ++i) {
-        printf("%s ", (commands + i)->name);
+        struct cmd_struct* c = commands + i;
+        printf("%s", c->name);
+        if (c->shortcut && c->shortcut[0]) {
+            printf("/%s", c->shortcut);
+        }
+        printf(" ");
     }
     printf("\n");
-}
-
-static bool starts_with(const char *pre, const char *str) {
-    size_t lenpre = strlen(pre);
-    size_t lenstr = strlen(str);
-    return lenstr < lenpre ? false : strncmp(pre, str, lenpre) == 0;
 }
 
 int main(int argc, char **av) {
@@ -60,7 +60,7 @@ int main(int argc, char **av) {
 
     for (int i = 0; i < ARRAY_SIZE(commands); ++i) {
         struct cmd_struct* p = commands + i;
-        if (starts_with(cmd, p->name)) {
+        if (!strcmp(p->name, cmd) || !strcmp(p->shortcut, cmd)) {
             matched[matched_count++] = p;
         }
     }
@@ -70,7 +70,7 @@ int main(int argc, char **av) {
     } else if (1 == matched_count) {
         matched[0]->fn(argc, argv);
     } else {
-        fprintf(stderr, "Ambiguous shortening: ");
+        fprintf(stderr, "Ambiguous command: ");
         for (int i = 0; i < matched_count; ++i) {
             fprintf(stderr, "%s ", matched[i]->name);
         }
