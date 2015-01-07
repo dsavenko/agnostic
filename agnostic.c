@@ -10,6 +10,18 @@
 
 void ag_free_component(struct ag_component* c);
 
+void ag_free_component_list(struct ag_component_list* c, bool free_components) {
+    struct ag_component_list* n = NULL;
+    while (c) {
+        if (free_components) {
+            ag_free_component(c->component);
+        }
+        n = c->next;
+        free(c);
+        c = n;
+    }
+}
+
 void ag_free_component(struct ag_component* c) {
     if (!c) {
         return;
@@ -20,6 +32,7 @@ void ag_free_component(struct ag_component* c) {
     free(c->git);
     free(c->hg);
     free(c->build);
+    ag_free_component_list(c->build_after, false);
 }
 
 void ag_free(struct ag_project* project) {
@@ -28,12 +41,7 @@ void ag_free(struct ag_project* project) {
     }
     free(project->dir);
     free(project->file);
-    if (project->components) {
-        for (int i = 0; i < project->component_count; ++i) {
-            ag_free_component(project->components[i]);
-        }
-        free(project->components);
-    }
+    ag_free_component_list(project->components, true);
     free(project);
 }
 
@@ -77,13 +85,14 @@ int ag_load(const char* file_name, struct ag_project** project) {
         (*project)->file = realpath(file_name, NULL);
     }
     if (!(*project)->file) {
-        ag_free(*project);
+        free(*project);
         return 3;
     }
 
     (*project)->dir = parent_dir((*project)->file);
     if (!(*project)->dir) {
-        ag_free(*project);
+        free((*project)->file);
+        free(*project);
         return 4;
     }
 
@@ -91,7 +100,6 @@ int ag_load(const char* file_name, struct ag_project** project) {
     yaml_token_t token;
 
     if (!yaml_parser_initialize(&parser)) {
-        ag_free(*project);
         return 2;
     }
 
@@ -99,16 +107,7 @@ int ag_load(const char* file_name, struct ag_project** project) {
 
     bool is_key = false;
 
-    struct ag_component_list {
-        struct ag_component* component;
-        struct ag_component_list* next;
-    };
-
-    const int comp_size_step = 30;
-    int comp_size = comp_size_step;
-    (*project)->components = (struct ag_component**)malloc(comp_size * sizeof(struct ag_component*));
-    (*project)->component_count = 0;
-    struct ag_component* c = NULL;
+    struct ag_component_list** c = &((*project)->components);
 
     enum load_state {
         unknown,
@@ -142,14 +141,14 @@ int ag_load(const char* file_name, struct ag_project** project) {
                     const char* key = (const char *)token.data.scalar.value;
 
                     if (!strcmp(key, "component")) {
-                        if ((*project)->component_count == comp_size) {
-                            comp_size += comp_size_step;
-                            // TODO: potential memory leak here
-                            (*project)->components = 
-                                (struct ag_component**)realloc((*project)->components, comp_size * sizeof(struct ag_component*));
+                        if (*c) {
+                            (*c)->next = (struct ag_component_list*)calloc(1, sizeof(struct ag_component_list));
+                            c = &((*c)->next);
+                        } else {
+                            *c = (struct ag_component_list*)calloc(1, sizeof(struct ag_component_list));
                         }
-                        c = (struct ag_component*)calloc(1, sizeof(struct ag_component));
-                        (*project)->components[(*project)->component_count++] = c;
+                        (*c)->component = (struct ag_component*)calloc(1, sizeof(struct ag_component));
+                        (*project)->component_count++;
 
                     } else if (!strcmp(key, "name")) {
                         state = name;
@@ -177,27 +176,27 @@ int ag_load(const char* file_name, struct ag_project** project) {
 
                     switch (state) {
                     case name:
-                        c->name = strdup((const char*)token.data.scalar.value);
+                        (*c)->component->name = strdup((const char*)token.data.scalar.value);
                         break;
 
                     case alias:
-                        c->alias = strdup((const char*)token.data.scalar.value);
+                        (*c)->component->alias = strdup((const char*)token.data.scalar.value);
                         break;
 
                     case description:
-                        c->description = strdup((const char*)token.data.scalar.value);
+                        (*c)->component->description = strdup((const char*)token.data.scalar.value);
                         break;
                         
                     case git:
-                        c->git = strdup((const char*)token.data.scalar.value);
+                        (*c)->component->git = strdup((const char*)token.data.scalar.value);
                         break;
                         
                     case hg:
-                        c->hg = strdup((const char*)token.data.scalar.value);
+                        (*c)->component->hg = strdup((const char*)token.data.scalar.value);
                         break;
                         
                     case build:
-                        c->build = strdup((const char*)token.data.scalar.value);
+                        (*c)->component->build = strdup((const char*)token.data.scalar.value);
                         break;
 
                     case unknown:
@@ -215,15 +214,8 @@ int ag_load(const char* file_name, struct ag_project** project) {
         yaml_token_delete(&token);
     }
 
-    if ((*project)->component_count < comp_size) {
-        // TODO: potential memory leak here
-        (*project)->components = 
-            (struct ag_component**)realloc((*project)->components, (*project)->component_count * sizeof(struct ag_component*));
-    }
-
     yaml_parser_delete(&parser);
     fclose(fh);
-
     return 0;
 }
 
@@ -265,13 +257,16 @@ struct ag_component* ag_find_component(struct ag_project* project, const char* n
     assert(project);
     assert(name_or_alias);
 
-    for (int i = 0; i < project->component_count; ++i) {
-        struct ag_component* c = project->components[i];
-        if ((c->name && !strcmp(c->name, name_or_alias)) || (c->alias && !strcmp(c->alias, name_or_alias))) {
-            return c;
+    struct ag_component_list* l = project->components;
+    struct ag_component* ret = NULL;
+    while (l && !ret) {
+        if ((l->component->name && !strcmp(l->component->name, name_or_alias)) || 
+            (l->component->alias && !strcmp(l->component->alias, name_or_alias))) {
+            ret = l->component;
         }
+        l = l->next;
     }
-    return NULL;
+    return ret;
 }
 
 char* ag_component_dir(struct ag_project* project, struct ag_component* component) {

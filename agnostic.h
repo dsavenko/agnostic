@@ -12,13 +12,19 @@ struct ag_component {
     char* git;
     char* hg;
     char* build;
+    struct ag_component_list* build_after;
+};
+
+struct ag_component_list {
+    struct ag_component* component;
+    struct ag_component_list* next;
 };
 
 struct ag_project {
     char* dir;
     char* file;
     int component_count;
-    struct ag_component** components;
+    struct ag_component_list* components;
 };
 
 // Creates a new project. If project points to another project, the pointer will be lost.
