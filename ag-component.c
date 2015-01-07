@@ -23,6 +23,15 @@ void component(int argc, const char** argv) {
         if (c->description && c->description[0]) {
             printf("\n%s\n", c->description);
         }
+        if (c->build_after) {
+            struct ag_string_list* l = c->build_after;
+            printf("\nBuild after:\n");
+            while (l) {
+                printf("%s ", l->s);
+                l = l->next;
+            }
+            printf("\n");
+        }
         if (c->build) {
             printf("\nBuild:\n%s\n", c->build);
         }

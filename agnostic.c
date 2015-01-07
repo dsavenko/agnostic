@@ -10,15 +10,23 @@
 
 void ag_free_component(struct ag_component* c);
 
-void ag_free_component_list(struct ag_component_list* c, bool free_components) {
+void ag_free_component_list(struct ag_component_list* c) {
     struct ag_component_list* n = NULL;
     while (c) {
-        if (free_components) {
-            ag_free_component(c->component);
-        }
+        ag_free_component(c->component);
         n = c->next;
         free(c);
         c = n;
+    }
+}
+
+void ag_free_string_list(struct ag_string_list* l) {
+    struct ag_string_list* n = NULL;
+    while (l) {
+        free(l->s);
+        n = l->next;
+        free(l);
+        l = n;
     }
 }
 
@@ -32,7 +40,8 @@ void ag_free_component(struct ag_component* c) {
     free(c->git);
     free(c->hg);
     free(c->build);
-    ag_free_component_list(c->build_after, false);
+    ag_free_string_list(c->build_after);
+    free(c);
 }
 
 void ag_free(struct ag_project* project) {
@@ -41,7 +50,7 @@ void ag_free(struct ag_project* project) {
     }
     free(project->dir);
     free(project->file);
-    ag_free_component_list(project->components, true);
+    ag_free_component_list(project->components);
     free(project);
 }
 
@@ -116,10 +125,13 @@ int ag_load(const char* file_name, struct ag_project** project) {
         description,
         git,
         hg,
-        build
+        build,
+        build_after
     } state = unknown;
 
     bool eof = false;
+
+    struct ag_string_list* slist = NULL;
 
     while (!eof) {
         yaml_parser_scan(&parser, &token);
@@ -130,6 +142,7 @@ int ag_load(const char* file_name, struct ag_project** project) {
 
             case YAML_KEY_TOKEN:   
                 is_key = true;
+                state = unknown;
                 break;
 
             case YAML_VALUE_TOKEN: 
@@ -168,6 +181,9 @@ int ag_load(const char* file_name, struct ag_project** project) {
                     } else if (!strcmp(key, "build")) {
                         state = build;
 
+                    } else if (!strcmp(key, "buildAfter")) {
+                        state = build_after;
+
                     } else {
                         state = unknown;
                     }
@@ -199,11 +215,16 @@ int ag_load(const char* file_name, struct ag_project** project) {
                         (*c)->component->build = strdup((const char*)token.data.scalar.value);
                         break;
 
+                    case build_after:
+                        slist = (struct ag_string_list*)calloc(1, sizeof(struct ag_string_list));
+                        slist->s = strdup((const char*)token.data.scalar.value);
+                        slist->next = (*c)->component->build_after;
+                        (*c)->component->build_after = slist;
+                        break;
+
                     case unknown:
                         break;
                     }
-
-                    state = unknown;
                 }
                 break;
 

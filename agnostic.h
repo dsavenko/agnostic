@@ -3,7 +3,10 @@
 
 #include <stdbool.h>
 
-struct ag_component_list;
+struct ag_string_list {
+    char* s;
+    struct ag_string_list* next;
+};
 
 struct ag_component {
     char* name;
@@ -12,7 +15,7 @@ struct ag_component {
     char* git;
     char* hg;
     char* build;
-    struct ag_component_list* build_after;
+    struct ag_string_list* build_after;
 };
 
 struct ag_component_list {
