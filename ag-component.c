@@ -34,6 +34,9 @@ void component(int argc, const char** argv) {
         }
         if (c->build) {
             printf("\nBuild:\n%s\n", c->build);
+            if (c->integrate) {
+                printf("Integration build:\n%s\n", c->integrate);
+            }
         }
     } else {
         die("Component not found");

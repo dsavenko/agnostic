@@ -60,6 +60,7 @@ static void ag_free_component(struct ag_component* c) {
     free(c->git);
     free(c->hg);
     free(c->build);
+    free(c->integrate);
     ag_free_string_list(c->build_after);
     free(c);
 }
@@ -146,6 +147,7 @@ int ag_load(const char* file_name, struct ag_project** project) {
         git,
         hg,
         build,
+        integrate,
         build_after
     } state = unknown;
 
@@ -201,6 +203,9 @@ int ag_load(const char* file_name, struct ag_project** project) {
                     } else if (!strcmp(key, "build")) {
                         state = build;
 
+                    } else if (!strcmp(key, "integrate")) {
+                        state = integrate;
+
                     } else if (!strcmp(key, "buildAfter")) {
                         state = build_after;
 
@@ -233,6 +238,10 @@ int ag_load(const char* file_name, struct ag_project** project) {
                         
                     case build:
                         (*c)->component->build = strdup((const char*)token.data.scalar.value);
+                        break;
+
+                    case integrate:
+                        (*c)->component->integrate = strdup((const char*)token.data.scalar.value);
                         break;
 
                     case build_after:

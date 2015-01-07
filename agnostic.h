@@ -15,6 +15,7 @@ struct ag_component {
     char* git;
     char* hg;
     char* build;
+    char* integrate;
     struct ag_string_list* build_after;
 };
 
