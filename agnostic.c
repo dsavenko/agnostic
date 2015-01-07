@@ -8,19 +8,39 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-void ag_free_component(struct ag_component* c);
+struct ag_component_list* ag_create_component_node(struct ag_component* component, struct ag_component_list* next) {
+    if (!component) {
+        return NULL;
+    }
+    struct ag_component_list* ret = (struct ag_component_list*)calloc(1, sizeof(struct ag_component_list));
+    if (!ret) {
+        ag_shallow_free_component_list(next);
+        return NULL;
+    }
+    ret->component = component;
+    ret->next = next;
+    return ret;
+}
 
-void ag_free_component_list(struct ag_component_list* c) {
+static void ag_free_component(struct ag_component* c);
+
+static void ag_free_component_list(struct ag_component_list* c, bool free_components) {
     struct ag_component_list* n = NULL;
     while (c) {
-        ag_free_component(c->component);
+        if (free_components) {
+            ag_free_component(c->component);
+        }
         n = c->next;
         free(c);
         c = n;
     }
 }
 
-void ag_free_string_list(struct ag_string_list* l) {
+void ag_shallow_free_component_list(struct ag_component_list* c) {
+    ag_free_component_list(c, false);
+}
+
+static void ag_free_string_list(struct ag_string_list* l) {
     struct ag_string_list* n = NULL;
     while (l) {
         free(l->s);
@@ -30,7 +50,7 @@ void ag_free_string_list(struct ag_string_list* l) {
     }
 }
 
-void ag_free_component(struct ag_component* c) {
+static void ag_free_component(struct ag_component* c) {
     if (!c) {
         return;
     }
@@ -50,7 +70,7 @@ void ag_free(struct ag_project* project) {
     }
     free(project->dir);
     free(project->file);
-    ag_free_component_list(project->components);
+    ag_free_component_list(project->components, true);
     free(project);
 }
 
@@ -298,6 +318,54 @@ char* ag_component_dir(struct ag_project* project, struct ag_component* componen
 
     char* ret = NULL;
     asprintf(&ret, "%s/%s", project->dir, component->name);
+    return ret;
+}
+
+static struct ag_component_list* fill_build_up_list(struct ag_component_list* old_root, struct ag_project* project, struct ag_component* component) {
+    if (!old_root) {
+        return NULL;
+    }
+
+    struct ag_component_list* new_root = old_root;
+    
+    for (struct ag_string_list* slist = component->build_after; slist; slist = slist->next) {
+        const char* s = slist->s;
+
+        bool found = false;
+        for (struct ag_component_list* l = project->components; l && !found; l = l->next) {
+            if (!strcmp(l->component->name, s)) {
+                new_root = ag_create_component_node(l->component, new_root);
+                new_root = fill_build_up_list(new_root, project, l->component);
+                found = true;
+            }
+        }
+
+        if (!found || !new_root) {
+            ag_shallow_free_component_list(new_root);
+            return NULL;
+        }
+    }
+
+    return new_root;
+}
+
+static void remove_duplicates(struct ag_component_list* list) {
+    for (struct ag_component_list* i = list; i; i = i->next) {
+        for (struct ag_component_list* j = i->next, *prev_j = i; j; prev_j = j, j = j->next) {
+            if (!strcmp(i->component->name, j->component->name)) {
+                prev_j->next = j->next;
+                free(j);
+                j = prev_j;
+            }
+        }
+    }
+}
+
+struct ag_component_list* ag_build_up_list(struct ag_project* project, struct ag_component* component) {
+    assert(project);
+    assert(component);
+    struct ag_component_list* ret = fill_build_up_list(ag_create_component_node(component, NULL), project, component);
+    remove_duplicates(ret);
     return ret;
 }
 
