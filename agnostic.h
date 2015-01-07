@@ -25,13 +25,25 @@ struct ag_component_list {
 };
 
 struct ag_project {
+    char* name;
+    char* description;
+    char* bugs;
     char* dir;
     char* file;
     int component_count;
     struct ag_component_list* components;
+    struct ag_string_list* docs;
 };
 
-// Creates a new component node. Does nothing and return NULL, if the given component is NULL.
+// Creates a new string node. Does nothing and return NULL, if the given component is NULL or failed to allocate memory. 
+// If failed to allocate memory, and next is not NULL, frees next. 
+struct ag_string_list* ag_create_string_node(char* s, struct ag_string_list* next);
+
+// Frees the given string list with all its strings.
+void ag_free_string_list(struct ag_string_list* l);
+
+// Creates a new component node. Does nothing and return NULL, if the given component is NULL or failed to allocate memory. 
+// If failed to allocate memory, and next is not NULL, frees next. 
 struct ag_component_list* ag_create_component_node(struct ag_component* component, struct ag_component_list* next);
 
 // Creates a new project. If project points to another project, the pointer will be lost.

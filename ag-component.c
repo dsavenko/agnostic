@@ -21,7 +21,7 @@ void component(int argc, const char** argv) {
             printf("Repository: %s (mercurial)\n", c->hg);
         }
         if (c->description && c->description[0]) {
-            printf("\n%s\n", c->description);
+            printf("Description: %s\n", c->description);
         }
         if (c->build_after) {
             struct ag_string_list* l = c->build_after;

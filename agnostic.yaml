@@ -1,4 +1,14 @@
 ---
+project:
+  name: EZCommit/Log Analyzer
+  description: Combined efforts on Log Analyzer and EZCommit.
+  bugs: https://jira4.xored.com/browse/EZ
+  docs: 
+    - "https://docs.xored.com/display/PRIME/EZCommit"
+    - "https://docs.xored.com/display/PRIME/Log+Analyzer"
+    - GitHub wiki for certain components
+
+---
 component:
   name: PegParser
   alias: peg

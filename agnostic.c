@@ -22,6 +22,20 @@ struct ag_component_list* ag_create_component_node(struct ag_component* componen
     return ret;
 }
 
+struct ag_string_list* ag_create_string_node(char* s, struct ag_string_list* next) {
+    if (!s) {
+        return NULL;
+    }
+    struct ag_string_list* ret = (struct ag_string_list*)calloc(1, sizeof(struct ag_string_list));
+    if (!ret) {
+        ag_free_string_list(next);
+        return NULL;
+    }
+    ret->s = s;
+    ret->next = next;
+    return ret;
+}
+
 static void ag_free_component(struct ag_component* c);
 
 static void ag_free_component_list(struct ag_component_list* c, bool free_components) {
@@ -40,7 +54,7 @@ void ag_shallow_free_component_list(struct ag_component_list* c) {
     ag_free_component_list(c, false);
 }
 
-static void ag_free_string_list(struct ag_string_list* l) {
+void ag_free_string_list(struct ag_string_list* l) {
     struct ag_string_list* n = NULL;
     while (l) {
         free(l->s);
@@ -65,14 +79,18 @@ static void ag_free_component(struct ag_component* c) {
     free(c);
 }
 
-void ag_free(struct ag_project* project) {
-    if (!project) {
+void ag_free(struct ag_project* p) {
+    if (!p) {
         return;
     }
-    free(project->dir);
-    free(project->file);
-    ag_free_component_list(project->components, true);
-    free(project);
+    free(p->name);
+    free(p->description);
+    free(p->bugs);
+    free(p->dir);
+    free(p->file);
+    ag_free_component_list(p->components, true);
+    ag_free_string_list(p->docs);
+    free(p);
 }
 
 int ag_load_default(struct ag_project** project) {
@@ -135,8 +153,6 @@ int ag_load(const char* file_name, struct ag_project** project) {
 
     yaml_parser_set_input_file(&parser, fh);
 
-    bool is_key = false;
-
     struct ag_component_list** c = &((*project)->components);
 
     enum load_state {
@@ -148,12 +164,14 @@ int ag_load(const char* file_name, struct ag_project** project) {
         hg,
         build,
         integrate,
-        build_after
+        build_after,
+        bugs,
+        docs
     } state = unknown;
 
+    bool is_key = false;
+    bool is_project = false;
     bool eof = false;
-
-    struct ag_string_list* slist = NULL;
 
     while (!eof) {
         yaml_parser_scan(&parser, &token);
@@ -175,7 +193,10 @@ int ag_load(const char* file_name, struct ag_project** project) {
                 if (is_key) {
                     const char* key = (const char *)token.data.scalar.value;
 
-                    if (!strcmp(key, "component")) {
+                    if (!strcmp(key, "project")) {
+                        is_project = true;
+                    } else if (!strcmp(key, "component")) {
+                        is_project = false;
                         if (*c) {
                             (*c)->next = (struct ag_component_list*)calloc(1, sizeof(struct ag_component_list));
                             c = &((*c)->next);
@@ -209,6 +230,12 @@ int ag_load(const char* file_name, struct ag_project** project) {
                     } else if (!strcmp(key, "buildAfter")) {
                         state = build_after;
 
+                    } else if (!strcmp(key, "bugs")) {
+                        state = bugs;
+
+                    } else if (!strcmp(key, "docs")) {
+                        state = docs;
+
                     } else {
                         state = unknown;
                     }
@@ -217,38 +244,67 @@ int ag_load(const char* file_name, struct ag_project** project) {
 
                     switch (state) {
                     case name:
-                        (*c)->component->name = strdup((const char*)token.data.scalar.value);
+                        if (is_project) {
+                            (*project)->name = strdup((const char*)token.data.scalar.value);
+                        } else {
+                            (*c)->component->name = strdup((const char*)token.data.scalar.value);
+                        }
                         break;
 
                     case alias:
-                        (*c)->component->alias = strdup((const char*)token.data.scalar.value);
+                        if (!is_project) {
+                            (*c)->component->alias = strdup((const char*)token.data.scalar.value);
+                        }
                         break;
 
                     case description:
-                        (*c)->component->description = strdup((const char*)token.data.scalar.value);
+                        if (is_project) {
+                            (*project)->description = strdup((const char*)token.data.scalar.value);
+                        } else {
+                            (*c)->component->description = strdup((const char*)token.data.scalar.value);
+                        }
                         break;
                         
                     case git:
-                        (*c)->component->git = strdup((const char*)token.data.scalar.value);
+                        if (!is_project) {
+                            (*c)->component->git = strdup((const char*)token.data.scalar.value);
+                        }
                         break;
                         
                     case hg:
-                        (*c)->component->hg = strdup((const char*)token.data.scalar.value);
+                        if (!is_project) {
+                            (*c)->component->hg = strdup((const char*)token.data.scalar.value);
+                        }
                         break;
                         
                     case build:
-                        (*c)->component->build = strdup((const char*)token.data.scalar.value);
+                        if (!is_project) {
+                            (*c)->component->build = strdup((const char*)token.data.scalar.value);
+                        }
                         break;
 
                     case integrate:
-                        (*c)->component->integrate = strdup((const char*)token.data.scalar.value);
+                        if (!is_project) {
+                            (*c)->component->integrate = strdup((const char*)token.data.scalar.value);
+                        }
                         break;
 
                     case build_after:
-                        slist = (struct ag_string_list*)calloc(1, sizeof(struct ag_string_list));
-                        slist->s = strdup((const char*)token.data.scalar.value);
-                        slist->next = (*c)->component->build_after;
-                        (*c)->component->build_after = slist;
+                        if (!is_project) {
+                            (*c)->component->build_after = ag_create_string_node(strdup((const char*)token.data.scalar.value), (*c)->component->build_after);
+                        }
+                        break;
+
+                    case bugs:
+                        if (is_project) {
+                            (*project)->bugs = strdup((const char*)token.data.scalar.value);
+                        }
+                        break;
+
+                    case docs:
+                        if (is_project) {
+                            (*project)->docs = ag_create_string_node(strdup((const char*)token.data.scalar.value), (*project)->docs);
+                        }
                         break;
 
                     case unknown:
