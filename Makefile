@@ -2,11 +2,12 @@ AG_VERSION=1.0
 
 CC=gcc
 COPTS=-O2
+#COPTS=-DDEBUG
 CFLAGS=-g $(COPTS) -Wall
 
 INCLUDES = yaml/include
 
-LIB_OBJS = agnostic.o common.o ag-clone.o ag-component.o ag-build.o ag-project.o
+LIB_OBJS = agnostic.o agnostic-loader.o common.o ag-clone.o ag-component.o ag-build.o ag-project.o
 
 LIB_FILE = libagnostic.a
 
@@ -26,7 +27,9 @@ ag-%: %.c $(LIB_FILE)
 ag: ag.c $(LIB_FILE)
 	$(CC) $(CFLAGS) -I$(INCLUDES) -o $@ $(filter %.c,$^) $(LIBS)
 
-agnostic.o: agnostic.h
+agnostic.o: agnostic.h agnostic.c
+
+agnostic-loader.o: agnostic.h agnostic-loader.c
 
 common.o: common.h
 

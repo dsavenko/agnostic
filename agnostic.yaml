@@ -7,6 +7,14 @@ project:
     - "https://docs.xored.com/display/PRIME/EZCommit"
     - "https://docs.xored.com/display/PRIME/Log+Analyzer"
     - GitHub wiki for certain components
+  tools:
+    - name: Fantom
+      description: Fantom language. FAN_DEV_HOME environment variable should point to its intallation directory.
+      info: http://fantom.org
+      download: https://bitbucket.org/fantom/fan-1.0/downloads/fantom-1.0.66.zip
+    - name: F4
+      description: Fantom IDE
+      info: http://www.xored.com/products/f4/
 
 ---
 component:
