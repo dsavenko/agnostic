@@ -35,7 +35,7 @@ struct ag_project {
     struct ag_string_list* docs;
 };
 
-// Creates a new string node. Does nothing and return NULL, if the given component is NULL or failed to allocate memory. 
+// Creates a new string node. Does nothing and return NULL, if string is NULL or failed to allocate memory. 
 // If failed to allocate memory, and next is not NULL, frees next. 
 struct ag_string_list* ag_create_string_node(char* s, struct ag_string_list* next);
 

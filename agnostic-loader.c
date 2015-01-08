@@ -126,6 +126,21 @@ static char* parent_dir(char* absolute_path) {
     return ret;
 }
 
+static struct ag_string_list** append_string_node(char* s, struct ag_string_list** prev) {
+    assert(!*prev);
+    if (!s) {
+        return prev;
+    }
+    struct ag_string_list* ret = (struct ag_string_list*)calloc(1, sizeof(struct ag_string_list));
+    if (!ret) {
+        return prev;
+    }
+    ret->s = s;
+    *prev = ret;
+    prev = &(ret->next);
+    return prev;
+}
+
 int ag_load_default(struct ag_project** project) {
     char* cfg_file = ag_find_project_file();
     if (!cfg_file) {
@@ -172,6 +187,8 @@ int ag_load(const char* file_name, struct ag_project** project) {
     yaml_parser_set_input_file(&parser, fh);
 
     struct ag_component_list** c = &((*project)->components);
+    struct ag_string_list** cur_build_after = NULL;
+    struct ag_string_list** cur_docs = NULL;
 
     struct structure_stack* stack = NULL;
     char* key = NULL;
@@ -220,6 +237,7 @@ int ag_load(const char* file_name, struct ag_project** project) {
 
                 } else if (s_project == stack->state && !strcmp(key, "docs")) {
                     stack = s_push(s_project_docs, stack);
+                    cur_docs = &((*project)->docs);
                     debug_print("%s\n", "push project docs");
 
                 } else if (s_doc_root == stack->state && !strcmp(key, "component")) {
@@ -236,6 +254,7 @@ int ag_load(const char* file_name, struct ag_project** project) {
 
                 } else if (s_component == stack->state && !strcmp(key, "buildAfter")) {
                     stack = s_push(s_component_build_after, stack);
+                    cur_build_after = &((*c)->component->build_after);
                     debug_print("%s\n", "push component build after");
 
                 } else {
@@ -270,7 +289,7 @@ int ag_load(const char* file_name, struct ag_project** project) {
                         }
 
                     } else if (s_project_docs == stack->state) {
-                        (*project)->docs = ag_create_string_node(strdup((const char*)token.data.scalar.value), (*project)->docs);
+                        cur_docs = append_string_node(strdup((const char*)token.data.scalar.value), cur_docs);
 
                     } else if (s_component == stack->state) {
                         if (!strcmp(key, "name")) {
@@ -297,7 +316,7 @@ int ag_load(const char* file_name, struct ag_project** project) {
                         }
 
                     } else if (s_component_build_after == stack->state) {
-                        (*c)->component->build_after = ag_create_string_node(strdup((const char*)token.data.scalar.value), (*c)->component->build_after);
+                        cur_build_after = append_string_node(strdup((const char*)token.data.scalar.value), cur_build_after);
 
                     }
 
