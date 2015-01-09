@@ -3,3 +3,4 @@ ag
 *.o
 *.a
 tmp/
+yaml/
