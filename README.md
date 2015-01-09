@@ -4,7 +4,7 @@ Project definition tool.
 
 ## Build
 
-1. Download and build libyaml (no need to install).
+Download and build libyaml (no need to install).
 
     hg clone https://bitbucket.org/xi/libyaml yaml
     cd yaml
@@ -12,6 +12,6 @@ Project definition tool.
     ./configure
     make
 
-2. Make agnostic
+Make agnostic
 
     make 
