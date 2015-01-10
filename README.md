@@ -2,6 +2,12 @@
 
 Project definition tool. 
 
+## Samples
+
+There are some samples in the `samples` directory. Go to a subdirectory and run `ag clone`.
+
+1. `sample/agnostic` - dogfood project of Agnostic itself. 
+
 ## Build
 
 Download and build [libyaml](http://pyyaml.org/wiki/LibYAML) (no need to install).
@@ -11,6 +17,7 @@ Download and build [libyaml](http://pyyaml.org/wiki/LibYAML) (no need to install
     ./bootstrap
     ./configure
     make
+    sudo make install 
 
 Make agnostic
 

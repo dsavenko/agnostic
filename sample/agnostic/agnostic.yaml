@@ -1,0 +1,31 @@
+---
+project:
+  name: Agnostic
+  description: Project definition tool (dogfood project). 
+  bugs: https://github.com/dsavenko/agnostic/issues
+  docs: 
+    - "https://github.com/dsavenko/agnostic/wiki"
+    - "https://github.com/dsavenko/agnostic/blob/master/README.md"
+
+---
+component:
+  name: libyaml
+  alias: yaml
+  description: "YAML parser"
+  hg: https://bitbucket.org/xi/libyaml
+  build: |
+    ./bootstrap
+    ./configure
+    make
+    sudo make install
+
+---
+component:
+  name: agnostic
+  alias: ag
+  description: "Main tool"
+  git: https://github.com/dsavenko/agnostic.git
+  build: |
+    make
+  buildAfter: 
+    - libyaml
