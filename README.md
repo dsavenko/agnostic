@@ -36,7 +36,7 @@ All of this means, that what actually *defines* the project is its CI server. Th
 
 There are some samples in the `samples` directory. Go to a subdirectory and run `ag clone`.
 
-1. `sample/agnostic` - dogfood project of Agnostic itself. 
+1. `samples/agnostic` - dogfood project of Agnostic itself. 
 
 ## Build
 
