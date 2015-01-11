@@ -1,7 +1,7 @@
 
 # Project file
 
-WARNING! Project file format, described here, may and, most likely, will be changed in the future. I will try to keep this file up-to-date.
+*WARNING! Project file format, described here, may and, most likely, will be changed in the future. I will try to keep this file up-to-date.*
 
 Agnostic project file describes the project with all its components, gives links to the documentation, repositories, contacts and so on. Ideally, to join a project, a developer should need no more than the project file, which replaces traditional "Getting started" e-mails or wiki pages.
 
@@ -9,7 +9,7 @@ The project file format is not stricly specified, so it may vary depending on th
 
 ## Top-level structure
 
-Project file is a [YAML](http://www.yaml.org/spec/1.2/spec.html) file. It contains at least one YAML document (for the project itself), and, optionally, more documents for components. Documents are separated by a line of three dashes (`---`).
+A project file is a [YAML](http://www.yaml.org/spec/1.2/spec.html) file. It contains at least one YAML document (for the project itself), and, optionally, more documents for components. Documents are separated by a line of three dashes (`---`).
 
 ## Project document
 
@@ -38,9 +38,9 @@ The following key/value pairs are optional for each tool node:
 
 ## Component document
 
-Component document describes a single component of the project. If the project is not split into components (e.g. it resides in a single repository and doesn't depend on anything unusual), there *should* still be one component to describe the project's sole source location.
+A component document describes a single component of the project. If the project is not split into components (e.g. it resides in a single repository and doesn't depend on anything unusual), there *should* still be one component to describe the project's sole source location.
 
-Component document must have top-level mapping node `component`. 
+A component document must have top-level mapping node `component`. 
 
 The following key/value pairs are required for the `component` node:
 
@@ -57,4 +57,4 @@ The following key/value pairs are optional for the `component` node:
 
 ## Project file samples
 
-Project file samples are in the `samples` directory of this repository. You may `cd` to a subdirectory of the `samples` directory and run `ag clone` to see, how it works. 
+Project file samples are in the [samples](samples/) directory of this repository. You may `cd` to a subdirectory of the [samples](samples/) directory and run `ag clone` to see, how it works. 
