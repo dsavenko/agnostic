@@ -24,7 +24,7 @@ Typically, all this information is passed to a new guy via e-mail or verbally.
 
 Agnostic defines such project files and provides a command line tool to work with them. For instance, instead of cloning all necessary repositories manually one by one, you can just run `ag clone`.
 
-**The second goal** of Agnostic is to untie a project from its CI server and bring unified development process experience. Don't get me wrong, CI servers are great. They're just not flexible enough, especially when compared to modern highly versitle VCSs like Git. 
+**The second goal** of Agnostic is to untie a project from its CI server and bring unified development process experience. Don't get me wrong, CI servers are great. They're just not flexible enough, especially when compared to modern highly versatile VCSs like Git. 
 
 Typically, project code is stored in a number of source repositories. But an important part of the information about the project (how to build it) exists as CI server jobs configuration. This information is not easily manageable. Usually, you can't easily migrate to another instance of the same CI server, not to mention migration to another CI server. Often, you can't easily run tests on local machine, because necessary scripts are not in the repository. When you need to build *several* components locally, you again need to study CI server configs to understand, in which order to build them. And so on.
 

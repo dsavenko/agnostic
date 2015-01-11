@@ -5,7 +5,7 @@ WARNING! Project file format, described here, may and, most likely, will be chan
 
 Agnostic project file describes the project with all its components, gives links to the documentation, repositories, contacts and so on. Ideally, to join a project, a developer should need no more than the project file, which replaces traditional "Getting started" e-mails or wiki pages.
 
-The project file format is not stricly specified, so it may vary depending on the needs of a particular project. Common and recognizeable by the command line tool parts are described below. Any project should respect these conventions. 
+The project file format is not strictly specified, so it may vary depending on the needs of a particular project. Common and recognizable by the command line tool parts are described below. Any project should respect these conventions. 
 
 ## Top-level structure
 
@@ -52,7 +52,7 @@ The following key/value pairs are optional for the `component` node:
 * `alias`: the component's short name;
 * `git` or `hg` (but not both): the component's source repository (Git or Mercurial) in a form suitable to run `git clone` or `hg clone`;
 * `build`: shell script to build the component locally (developer build);
-* `integrate`: shell script to perform integartion build;
+* `integrate`: shell script to perform integration build;
 * `buildAfter`: a list of names or aliases of other components from this file, which should be built before this component.
 
 ## Project file samples
