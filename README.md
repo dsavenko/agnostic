@@ -32,11 +32,17 @@ Your project becomes highly coupled with the particular instance of some CI serv
 
 All of this means, that what actually *defines* the project is its CI server. This situation seems wrong. **The second goal** of Agnostic is to change it. Agnostic project file contains all necessary information about how to build a project (build instructions, component dependencies, etc). Agnostic command line tool provides ways to utilize this information locally. E.g. you just execute `ag build` to build any component regardless of its language and build system, and `ag build up` to do upstream build (build component with all its dependencies). 
 
+## Documentation
+
+See the [docs](docs/) directory. 
+
+1. [project-file.md](docs/project-file.md): the project file format.
+
 ## Samples
 
-There are some samples in the `samples` directory. Go to a subdirectory and run `ag clone`.
+There are some samples in the [samples](samples/) directory. Go to a subdirectory and run `ag clone`.
 
-1. `samples/agnostic` - dogfood project of Agnostic itself. 
+1. [samples/agnostic](samples/agnostic) - dogfood project of Agnostic itself.
 
 ## Build
 
