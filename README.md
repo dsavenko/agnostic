@@ -40,7 +40,7 @@ There are some samples in the `samples` directory. Go to a subdirectory and run 
 
 ## Build
 
-Download and build [libyaml](http://pyyaml.org/wiki/LibYAML) (no need to install).
+Download and build [libyaml](http://pyyaml.org/wiki/LibYAML).
 
     hg clone https://bitbucket.org/xi/libyaml yaml
     cd yaml
