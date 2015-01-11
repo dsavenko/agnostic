@@ -57,4 +57,4 @@ The following key/value pairs are optional for the `component` node:
 
 ## Project file samples
 
-Project file samples are in the [samples](samples/) directory of this repository. You may `cd` to a subdirectory of the [samples](samples/) directory and run `ag clone` to see, how it works. 
+Project file samples are in the [samples](../samples/) directory of this repository. You may `cd` to a subdirectory of the [samples](../samples/) directory and run `ag clone` to see, how it works. 
