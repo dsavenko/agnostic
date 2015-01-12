@@ -29,7 +29,7 @@ ag: ag.c $(LIB_FILE)
 
 agnostic.o: agnostic.h agnostic.c
 
-agnostic-loader.o: agnostic.h agnostic-loader.c
+agnostic-loader.o: agnostic.h agnostic-loader.c common.h
 
 common.o: common.h
 

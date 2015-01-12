@@ -1,5 +1,6 @@
 
 #include "agnostic.h"
+#include "common.h"
 
 #include <yaml.h>
 
@@ -59,15 +60,6 @@ static const char* yaml_token_names[] = {
     /** A SCALAR token. */
     "YAML_SCALAR_TOKEN"
 };
-
-#ifdef DEBUG
-#define DEBUG_TEST 1
-#else
-#define DEBUG_TEST 0
-#endif
-
-#define debug_print(fmt, ...) \
-            do { if (DEBUG_TEST) printf(fmt, __VA_ARGS__); } while (0)
 
 enum structure_state {
     s_unknown,

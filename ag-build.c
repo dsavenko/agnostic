@@ -1,6 +1,7 @@
 
 #include "agnostic.h"
 #include "common.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/wait.h>
@@ -46,6 +47,7 @@ static void build_component(struct ag_project* project, struct ag_component* c) 
     if (!parent_dir) {
         die("Unable to find parent directory of the component.");
     }
+    debug_print("Running script %s from parent directory %s\n", script, parent_dir);
     pid_t child_pid = run_script(parent_dir, script);
     if (-1 == child_pid) {
         perror(NULL);

@@ -96,6 +96,80 @@ static bool file_exist(const char* fname) {
     return access(fname, F_OK) != -1;
 }
 
+static char * normalize_path(const char * src, size_t src_len) {
+    // initial version of this function is written by the user 'arnaud576875' from StackOverflow:
+    // http://stackoverflow.com/questions/4774116/c-realpath-without-resolving-symlinks        
+
+    char * res;
+    size_t res_len;
+
+    const char * ptr = src;
+    const char * end = &src[src_len];
+    const char * next;
+
+    if (src_len == 0 || src[0] != '/') {
+        // relative path
+        char* pwd = NULL;
+        size_t pwd_len;
+
+        if (!(pwd = getcwd(NULL, 0))) {
+            return NULL;
+        }
+
+        pwd_len = strlen(pwd);
+        res = malloc(pwd_len + 1 + src_len + 1);
+        if (!res) {
+            free(pwd);
+            return NULL;
+        }
+        memcpy(res, pwd, pwd_len);
+        res_len = pwd_len;
+        free(pwd);
+    } else {
+        res = malloc((src_len > 0 ? src_len : 1) + 1);
+        if (!res) {
+            return NULL;
+        }
+        res_len = 0;
+    }
+
+    for (ptr = src; ptr < end; ptr=next+1) {
+        size_t len;
+        next = memchr(ptr, '/', end-ptr);
+        if (next == NULL) {
+            next = end;
+        }
+        len = next-ptr;
+        switch(len) {
+        case 2:
+            if (ptr[0] == '.' && ptr[1] == '.') {
+                const char * slash = strrchr(res, '/');
+                if (slash != NULL) {
+                    res_len = slash - res;
+                }
+                continue;
+            }
+            break;
+        case 1:
+            if (ptr[0] == '.') {
+                continue;
+            }
+            break;
+        case 0:
+            continue;
+        }
+        res[res_len++] = '/';
+        memcpy(&res[res_len], ptr, len);
+        res_len += len;
+    }
+
+    if (res_len == 0) {
+        res[res_len++] = '/';
+    }
+    res[res_len] = '\0';
+    return res;
+}
+
 char* ag_find_project_file() {
     const int size = 2;
     const char* files[size] = { "agnostic.yaml", "../agnostic.yaml" };
@@ -109,7 +183,7 @@ char* ag_find_project_file() {
     if (!relative) {
         return NULL;
     }
-    return realpath(relative, NULL);
+    return normalize_path(relative, strlen(relative));  // realpath() doesn't work here, since we DON'T want to resolve symlinks
 }
 
 struct ag_component* ag_find_current_component(struct ag_project* project) {
