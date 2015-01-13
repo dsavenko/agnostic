@@ -5,24 +5,26 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define PROP_COLOR TERM_COLOR_GREEN
+
 static void print_all(struct ag_project* p) {
-    printf("Name: %s\n", p->name);
-    printf("Root directory: %s\n", p->dir);
-    printf("Project file: %s\n", p->file);
+    printf(PROP_COLOR "Name:" TERM_COLOR_RESET " %s\n", p->name);
+    printf(PROP_COLOR "Root directory:" TERM_COLOR_RESET " %s\n", p->dir);
+    printf(PROP_COLOR "Project file:" TERM_COLOR_RESET " %s\n", p->file);
     if (p->description && p->description[0]) {
-        printf("Description: %s\n", p->description);
+        printf(PROP_COLOR "Description:" TERM_COLOR_RESET " %s\n", p->description);
     }
     if (p->bugs) {
-        printf("Bug tracker: %s\n", p->bugs);
+        printf(PROP_COLOR "Bug tracker:" TERM_COLOR_RESET " %s\n", p->bugs);
     }
     if (p->docs) {
-        printf("Documentation:\n");
+        printf(PROP_COLOR "Documentation:\n" TERM_COLOR_RESET);
         for (struct ag_string_list* l = p->docs; l; l = l->next) {
             printf("  - %s\n", l->s);
         }
     }
     if (p->components) {
-        printf("Components (%d):\n", p->component_count);
+        printf(PROP_COLOR "Components (%d):\n" TERM_COLOR_RESET, p->component_count);
         for (struct ag_component_list* l = p->components; l; l = l->next) {
             printf("  - %s\n", l->component->name);
         }
