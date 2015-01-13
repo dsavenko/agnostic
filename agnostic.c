@@ -1,11 +1,26 @@
 
 #include "agnostic.h"
+#include "common.h"
 
 #include <assert.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+
+static const char* error_messages[] = {
+    [OK] = "OK",
+    [UNABLE_TO_OPEN_FILE] = "Unable to open file",
+    [FILE_NOT_FOUND] = "File not found",
+    [PROJECT_GOES_AFTER_COMPONENT] = "Project section must go before any component sections"
+};
+
+const char* ag_error_msg(int code) {
+    if (0 > code || code >= ARRAY_SIZE(error_messages)) {
+        return NULL;
+    }
+    return error_messages[code];
+}
 
 struct ag_component_list* ag_create_component_node(struct ag_component* component, struct ag_component_list* next) {
     if (!component) {

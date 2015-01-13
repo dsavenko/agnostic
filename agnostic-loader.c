@@ -143,12 +143,21 @@ int ag_load_default(struct ag_project** project) {
     return ret;
 }
 
+struct ag_project* ag_load_default_or_die() {
+    struct ag_project* ret = NULL;
+    int x = ag_load_default(&ret);
+    if (x) {
+        die("Failed to load the project. %s", ag_error_msg(x));
+    }
+    return ret;
+}
+
 int ag_load(const char* file_name, struct ag_project** project) {
     assert(file_name);
 
     FILE *fh = fopen(file_name, "r");
     if (!fh) {
-        return 1;
+        return UNABLE_TO_OPEN_FILE;
     }
 
     *project = (struct ag_project*)calloc(1, sizeof(struct ag_project));
@@ -159,23 +168,17 @@ int ag_load(const char* file_name, struct ag_project** project) {
     }
     if (!(*project)->file) {
         free(*project);
-        return 3;
+        return FILE_NOT_FOUND;
     }
 
     (*project)->dir = parent_dir((*project)->file);
-    if (!(*project)->dir) {
-        free((*project)->file);
-        free(*project);
-        return 4;
-    }
 
     yaml_parser_t parser;
     yaml_token_t token;
 
     if (!yaml_parser_initialize(&parser)) {
-        return 2;
+        die("Unable to initialize YAML parser");
     }
-
     yaml_parser_set_input_file(&parser, fh);
 
     struct ag_component_list** c = &((*project)->components);
@@ -187,6 +190,7 @@ int ag_load(const char* file_name, struct ag_project** project) {
 
     bool is_key = false;
     bool eof = false;
+    int ret = OK;
 
     while (!eof) {
         yaml_parser_scan(&parser, &token);
@@ -224,6 +228,11 @@ int ag_load(const char* file_name, struct ag_project** project) {
                     break;
                 }
                 if (s_doc_root == stack->state && !strcmp(key, "project")) {
+                    if ((*project)->components) {
+                        eof = true;
+                        ret = PROJECT_GOES_AFTER_COMPONENT;
+                        break;
+                    }
                     stack = s_push(s_project, stack);
                     debug_print("%s\n", "push project");
 
@@ -328,5 +337,5 @@ int ag_load(const char* file_name, struct ag_project** project) {
     s_free(stack);
     yaml_parser_delete(&parser);
     fclose(fh);
-    return 0;
+    return ret;
 }

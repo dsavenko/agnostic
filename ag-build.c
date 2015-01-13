@@ -107,11 +107,7 @@ static void build_up(struct ag_project* project, int argc, const char** argv) {
 }
 
 void build(int argc, const char** argv) {
-    struct ag_project* project = NULL;
-    if (ag_load_default(&project)) {
-        die("Failed to load project");
-    }
-
+    struct ag_project* project = ag_load_default_or_die();
     if (1 <= argc) {
         if (!strcmp("up", *argv)) {
             build_up(project, argc-1, argv+1);

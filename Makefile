@@ -27,7 +27,7 @@ ag-%: %.c $(LIB_FILE)
 ag: ag.c $(LIB_FILE)
 	$(CC) $(CFLAGS) -I$(INCLUDES) -o $@ $(filter %.c,$^) $(LIBS)
 
-agnostic.o: agnostic.h agnostic.c
+agnostic.o: agnostic.h agnostic.c common.h
 
 agnostic-loader.o: agnostic.h agnostic-loader.c common.h
 

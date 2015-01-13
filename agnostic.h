@@ -35,6 +35,17 @@ struct ag_project {
     struct ag_string_list* docs;
 };
 
+enum ag_return_codes {
+    OK,
+    UNABLE_TO_OPEN_FILE,
+    FILE_NOT_FOUND,
+    PROJECT_GOES_AFTER_COMPONENT
+};
+
+// Returns error message for the given code, or NULL, if not found.
+// Error message must not be freed.
+const char* ag_error_msg(int code);
+
 // Creates a new string node. Does nothing and return NULL, if string is NULL or failed to allocate memory. 
 // If failed to allocate memory, and next is not NULL, frees next. 
 struct ag_string_list* ag_create_string_node(char* s, struct ag_string_list* next);
@@ -52,6 +63,10 @@ int ag_load(const char* file_name, struct ag_project** project);
 
 // Tries to find default project file and load project from it.
 int ag_load_default(struct ag_project** project);
+
+// Tries to find default project file and load project from it. If failed, calls die() with appropriate message.
+// On success, returns a newly created project, which should be freed by calling ag_free().
+struct ag_project* ag_load_default_or_die();
 
 // Frees the whole project structure.
 void ag_free(struct ag_project* project);

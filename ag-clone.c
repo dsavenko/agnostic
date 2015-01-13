@@ -9,11 +9,7 @@
 #include <string.h>
 
 void clone(int argc, const char** argv) { 
-    struct ag_project* project = NULL;
-    if (ag_load_default(&project)) {
-        die("Failed to load project");
-    }
-
+    struct ag_project* project = ag_load_default_or_die();
     struct ag_component_list* l = project->components;
     int i = 0;
     pid_t* pids = (pid_t*)malloc(sizeof(pid_t) * project->component_count);

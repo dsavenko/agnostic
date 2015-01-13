@@ -5,10 +5,8 @@
 #include <stdlib.h>
 
 void project(int argc, const char** argv) {
-    struct ag_project* p = NULL;
-    if (ag_load_default(&p)) {
-        die("Failed to load project");
-    }
+    struct ag_project* p = ag_load_default_or_die();
+    
     printf("Name: %s\n", p->name);    
     printf("Root directory: %s\n", p->dir);
     printf("Project file: %s\n", p->file);
