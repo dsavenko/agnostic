@@ -26,11 +26,7 @@ struct ag_component_list* ag_create_component_node(struct ag_component* componen
     if (!component) {
         return NULL;
     }
-    struct ag_component_list* ret = (struct ag_component_list*)calloc(1, sizeof(struct ag_component_list));
-    if (!ret) {
-        ag_shallow_free_component_list(next);
-        return NULL;
-    }
+    struct ag_component_list* ret = (struct ag_component_list*)xcalloc(1, sizeof(struct ag_component_list));
     ret->component = component;
     ret->next = next;
     return ret;
@@ -40,11 +36,7 @@ struct ag_string_list* ag_create_string_node(char* s, struct ag_string_list* nex
     if (!s) {
         return NULL;
     }
-    struct ag_string_list* ret = (struct ag_string_list*)calloc(1, sizeof(struct ag_string_list));
-    if (!ret) {
-        ag_free_string_list(next);
-        return NULL;
-    }
+    struct ag_string_list* ret = (struct ag_string_list*)xcalloc(1, sizeof(struct ag_string_list));
     ret->s = s;
     ret->next = next;
     return ret;
@@ -132,19 +124,12 @@ static char * normalize_path(const char * src, size_t src_len) {
         }
 
         pwd_len = strlen(pwd);
-        res = malloc(pwd_len + 1 + src_len + 1);
-        if (!res) {
-            free(pwd);
-            return NULL;
-        }
+        res = xmalloc(pwd_len + 1 + src_len + 1);
         memcpy(res, pwd, pwd_len);
         res_len = pwd_len;
         free(pwd);
     } else {
-        res = malloc((src_len > 0 ? src_len : 1) + 1);
-        if (!res) {
-            return NULL;
-        }
+        res = xmalloc((src_len > 0 ? src_len : 1) + 1);
         res_len = 0;
     }
 
@@ -289,4 +274,3 @@ struct ag_component_list* ag_build_up_list(struct ag_project* project, struct ag
     remove_duplicates(ret);
     return ret;
 }
-

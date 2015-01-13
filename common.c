@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
+#include <string.h>
 
 void die(const char * format, ...) {
     va_list vargs;
@@ -12,6 +13,38 @@ void die(const char * format, ...) {
     vfprintf (stderr, format, vargs);
     fprintf (stderr, "\n");
     exit (1);
+}
+
+void* xcalloc(size_t count, size_t size) {
+    void* ret = calloc(count, size);
+    if (!ret) {
+        die("Out of memory, calloc failed");
+    }
+    return ret;
+}
+
+void* xmalloc(size_t size) {
+    void* ret = malloc(size);
+    if (!ret) {
+        die("Out of memory, malloc failed");
+    }
+    return ret;
+}
+
+void* xrealloc(void* ptr, size_t size) {
+    void* ret = realloc(ptr, size);
+    if (!ret) {
+        die("Out of memory, realloc failed");
+    }
+    return ret;
+}
+
+char* xstrdup(const char* s1) {
+    char* ret = strdup(s1);
+    if (!ret) {
+        die("Out of memory, strdup failed");
+    }
+    return ret;
 }
 
 pid_t run_cmd_line(const char* cmd_line) {

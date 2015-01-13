@@ -18,6 +18,12 @@
 // Terminates program abnormally with the given message.
 void die(const char * format, ...);
 
+// Memory and string wrapper functions, which die in case of not enough memory.
+void* xcalloc(size_t count, size_t size);
+void* xmalloc(size_t size);
+void* xrealloc(void* ptr, size_t size);
+char* xstrdup(const char* s1);
+
 // Creates a temp file with the given prefix (if non-NULL), write the given content into it (if non-NULL).
 // Returns pointer to the file name, which should be freed later.
 // Returns NULL on failure.

@@ -84,11 +84,7 @@ static void s_free(struct structure_stack* stack) {
 }
 
 static struct structure_stack* s_push(enum structure_state state, struct structure_stack* stack) {
-    struct structure_stack* ret = (struct structure_stack*)calloc(1, sizeof(struct structure_stack));
-    if (!ret) {
-        s_free(stack);
-        return NULL;
-    }
+    struct structure_stack* ret = (struct structure_stack*)xcalloc(1, sizeof(struct structure_stack));
     ret->state = state;
     ret->next = stack;
     return ret;
@@ -106,14 +102,11 @@ static struct structure_stack* s_pop(struct structure_stack* stack) {
 static char* parent_dir(char* absolute_path) {
     char* t = strrchr(absolute_path, '/');
     *t = '\0';
-    char* ret = strdup(absolute_path);
+    char* ret = xstrdup(absolute_path);
     *t = '/';
-    if (!ret) {
-        return NULL;
-    }
     if (!ret[0]) {
         free(ret);
-        ret = strdup("/");
+        ret = xstrdup("/");
     }
     return ret;
 }
@@ -123,10 +116,7 @@ static struct ag_string_list** append_string_node(char* s, struct ag_string_list
     if (!s) {
         return prev;
     }
-    struct ag_string_list* ret = (struct ag_string_list*)calloc(1, sizeof(struct ag_string_list));
-    if (!ret) {
-        return prev;
-    }
+    struct ag_string_list* ret = (struct ag_string_list*)xcalloc(1, sizeof(struct ag_string_list));
     ret->s = s;
     *prev = ret;
     prev = &(ret->next);
@@ -160,9 +150,9 @@ int ag_load(const char* file_name, struct ag_project** project) {
         return UNABLE_TO_OPEN_FILE;
     }
 
-    *project = (struct ag_project*)calloc(1, sizeof(struct ag_project));
+    *project = (struct ag_project*)xcalloc(1, sizeof(struct ag_project));
     if ('/' == file_name[0]) {
-        (*project)->file = strdup(file_name);
+        (*project)->file = xstrdup(file_name);
     } else {
         (*project)->file = realpath(file_name, NULL);
     }
@@ -244,12 +234,12 @@ int ag_load(const char* file_name, struct ag_project** project) {
                 } else if (s_doc_root == stack->state && !strcmp(key, "component")) {
                     stack = s_push(s_component, stack);
                     if (*c) {
-                        (*c)->next = (struct ag_component_list*)calloc(1, sizeof(struct ag_component_list));
+                        (*c)->next = (struct ag_component_list*)xcalloc(1, sizeof(struct ag_component_list));
                         c = &((*c)->next);
                     } else {
-                        *c = (struct ag_component_list*)calloc(1, sizeof(struct ag_component_list));
+                        *c = (struct ag_component_list*)xcalloc(1, sizeof(struct ag_component_list));
                     }
-                    (*c)->component = (struct ag_component*)calloc(1, sizeof(struct ag_component));
+                    (*c)->component = (struct ag_component*)xcalloc(1, sizeof(struct ag_component));
                     (*project)->component_count++;
                     debug_print("%s\n", "push component");
 
@@ -273,51 +263,51 @@ int ag_load(const char* file_name, struct ag_project** project) {
             case YAML_SCALAR_TOKEN:  
                 if (is_key) {
                     free(key);
-                    key = strdup((const char *)token.data.scalar.value);
+                    key = xstrdup((const char *)token.data.scalar.value);
 
                 } else {
 
                     if (s_project == stack->state) {
                         if (!strcmp(key, "name")) {
-                            (*project)->name = strdup((const char*)token.data.scalar.value);
+                            (*project)->name = xstrdup((const char*)token.data.scalar.value);
 
                         } else if (!strcmp(key, "description")) {
-                            (*project)->description = strdup((const char*)token.data.scalar.value);
+                            (*project)->description = xstrdup((const char*)token.data.scalar.value);
 
                         } else if (!strcmp(key, "bugs")) {
-                            (*project)->bugs = strdup((const char*)token.data.scalar.value);
+                            (*project)->bugs = xstrdup((const char*)token.data.scalar.value);
 
                         }
 
                     } else if (s_project_docs == stack->state) {
-                        cur_docs = append_string_node(strdup((const char*)token.data.scalar.value), cur_docs);
+                        cur_docs = append_string_node(xstrdup((const char*)token.data.scalar.value), cur_docs);
 
                     } else if (s_component == stack->state) {
                         if (!strcmp(key, "name")) {
-                            (*c)->component->name = strdup((const char*)token.data.scalar.value);
+                            (*c)->component->name = xstrdup((const char*)token.data.scalar.value);
 
                         } else if (!strcmp(key, "alias")) {
-                            (*c)->component->alias = strdup((const char*)token.data.scalar.value);
+                            (*c)->component->alias = xstrdup((const char*)token.data.scalar.value);
 
                         } else if (!strcmp(key, "description")) {
-                            (*c)->component->description = strdup((const char*)token.data.scalar.value);
+                            (*c)->component->description = xstrdup((const char*)token.data.scalar.value);
 
                         } else if (!strcmp(key, "git")) {
-                            (*c)->component->git = strdup((const char*)token.data.scalar.value);
+                            (*c)->component->git = xstrdup((const char*)token.data.scalar.value);
 
                         } else if (!strcmp(key, "hg")) {
-                            (*c)->component->hg = strdup((const char*)token.data.scalar.value);
+                            (*c)->component->hg = xstrdup((const char*)token.data.scalar.value);
 
                         } else if (!strcmp(key, "build")) {
-                            (*c)->component->build = strdup((const char*)token.data.scalar.value);
+                            (*c)->component->build = xstrdup((const char*)token.data.scalar.value);
 
                         } else if (!strcmp(key, "integrate")) {
-                            (*c)->component->integrate = strdup((const char*)token.data.scalar.value);
+                            (*c)->component->integrate = xstrdup((const char*)token.data.scalar.value);
 
                         }
 
                     } else if (s_component_build_after == stack->state) {
-                        cur_build_after = append_string_node(strdup((const char*)token.data.scalar.value), cur_build_after);
+                        cur_build_after = append_string_node(xstrdup((const char*)token.data.scalar.value), cur_build_after);
 
                     }
 
