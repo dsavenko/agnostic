@@ -47,6 +47,11 @@ static void help(int argc, const char** argv) {
 }
 
 static void setup_path(const char* exec_path) {
+    if (!strchr(exec_path, '/')) {
+        // assume, that PATH is valid
+        return;
+    }
+
     char* absolute = realpath(exec_path, NULL);
     char* parent = parent_dir(absolute);
 
