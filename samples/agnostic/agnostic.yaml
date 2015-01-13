@@ -4,8 +4,8 @@ project:
   description: Project definition tool (dogfood project). 
   bugs: https://github.com/dsavenko/agnostic/issues
   docs: 
-    - "https://github.com/dsavenko/agnostic/wiki"
     - "https://github.com/dsavenko/agnostic/blob/master/README.md"
+    - "https://github.com/dsavenko/agnostic/tree/master/docs"
 
 ---
 component:

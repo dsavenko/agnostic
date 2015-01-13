@@ -99,18 +99,6 @@ static struct structure_stack* s_pop(struct structure_stack* stack) {
     return ret;
 }
 
-static char* parent_dir(char* absolute_path) {
-    char* t = strrchr(absolute_path, '/');
-    *t = '\0';
-    char* ret = xstrdup(absolute_path);
-    *t = '/';
-    if (!ret[0]) {
-        free(ret);
-        ret = xstrdup("/");
-    }
-    return ret;
-}
-
 static struct ag_string_list** append_string_node(char* s, struct ag_string_list** prev) {
     assert(!*prev);
     if (!s) {

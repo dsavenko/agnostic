@@ -47,6 +47,20 @@ char* xstrdup(const char* s1) {
     return ret;
 }
 
+char* parent_dir(char* absolute_path) {
+    assert('/' == *absolute_path);
+
+    char* t = strrchr(absolute_path, '/');
+    *t = '\0';
+    char* ret = xstrdup(absolute_path);
+    *t = '/';
+    if (!ret[0]) {
+        free(ret);
+        ret = xstrdup("/");
+    }
+    return ret;
+}
+
 pid_t run_cmd_line(const char* cmd_line) {
     assert(cmd_line);
 
