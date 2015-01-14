@@ -193,6 +193,11 @@ struct ag_component* ag_find_current_component(struct ag_project* project) {
     if (!buf) {
         return NULL;
     }
+    if (!strcmp(project->dir, buf)) {
+        // we're in the project directory -> no current component.
+        free(buf);
+        return NULL;
+    }
     char* name = strrchr(buf, '/');
     name = name ? (name + 1) : buf;
     struct ag_component* ret = ag_find_component(project, name);
