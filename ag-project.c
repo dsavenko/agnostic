@@ -33,9 +33,9 @@ static void print_all(struct ag_project* p) {
 
 static void print_directories(struct ag_project* p) {
     for (struct ag_component_list* l = p->components; l; l = l->next) {
-        printf("%s\n", l->component->name);
+        printf("%s/%s\n", p->dir, l->component->name);
         if (l->component->alias) {
-            printf("%s\n", l->component->alias);
+            printf("%s/%s\n", p->dir, l->component->alias);
         }
     }
 }
