@@ -6,6 +6,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
+#include <dirent.h>
 
 void die(const char * format, ...) {
     va_list vargs;
@@ -59,6 +60,20 @@ char* parent_dir(char* absolute_path) {
         ret = xstrdup("/");
     }
     return ret;
+}
+
+int empty(const char* s) {
+    return !s || !s[0];
+}
+
+int dir_exists(const char* path) {
+    DIR* dir = opendir(path);
+    if (dir) {
+        closedir(dir);
+        return 1;
+    } else {
+        return 0;
+    }
 }
 
 pid_t run_cmd_line(const char* cmd_line) {

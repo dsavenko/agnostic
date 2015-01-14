@@ -32,8 +32,14 @@ void* xmalloc(size_t size);
 void* xrealloc(void* ptr, size_t size);
 char* xstrdup(const char* s1);
 
-// Returns parent dir by absolute path.
+// Returns parent directory by absolute path.
 char* parent_dir(char* absolute_path);
+
+// Returns 1, if the given string is NULL or empty. Otherwise, returns 0.
+int empty(const char* s);
+
+// Returns 1 if the given dir exists, and 0, if it doesn't.
+int dir_exists(const char* path);
 
 // Creates a temp file with the given prefix (if non-NULL), write the given content into it (if non-NULL).
 // Returns pointer to the file name, which should be freed later.

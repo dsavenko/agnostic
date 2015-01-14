@@ -7,6 +7,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
+
+static void checked_symlink(const char* name, const char* alias, int check_exist) {
+    if (empty(alias) || empty(name)) {
+        return;
+    }
+    if (symlink(name, alias)) {
+        if (check_exist || EEXIST != errno) {
+            perror(NULL);
+            fprintf(stderr, "Failed to create alias symlink %s -> %s\n", alias, name);
+        }
+    }
+}
 
 void clone(int argc, const char** argv) { 
     struct ag_project* project = ag_load_default_or_die();
@@ -19,6 +32,13 @@ void clone(int argc, const char** argv) {
     struct ag_component* c;
     while (l) {
         c = l->component;
+
+        if (dir_exists(c->name)) {
+            printf("Looks like component is already cloned: %s\n", c->name);
+            checked_symlink(c->name, c->alias, 0);
+            l = l->next;
+            continue;
+        }
 
         const char* vcs_exe = NULL;
         if (c->git) {
@@ -52,24 +72,20 @@ void clone(int argc, const char** argv) {
         ++i;
     }
 
-    int process_left = project->component_count;
+    int process_size = i;
+    int process_left = process_size;
     int status = 0;
     while (0 < process_left) {
         pid_t pid = wait(&status);
         --process_left;
-        for (int i = 0; i < project->component_count; ++i) {
+        for (int i = 0; i < process_size; ++i) {
             if (pids[i] == pid) {
                 if (WIFEXITED(status)) {
                     if (WEXITSTATUS(status)) {
                         printf("Failed to clone %s. Please, run it manually:\n    %s\n", names[i], cmdlines[i]);
                     } else {
                         printf("Successfully cloned %s\n", names[i]);
-                        if (aliases[i]) {
-                            if (symlink(names[i], aliases[i])) {
-                                perror(NULL);
-                                fprintf(stderr, "Failed to create alias symlink %s -> %s\n", aliases[i], names[i]);
-                            }
-                        }
+                        checked_symlink(names[i], aliases[i], 1);
                     }
                 } else {
                     printf("Stopped cloning %s\n", names[i]);
@@ -81,7 +97,7 @@ void clone(int argc, const char** argv) {
 
     free(pids);
     free(names);
-    for (int i = 0; i < project->component_count; ++i) {
+    for (int i = 0; i < process_size; ++i) {
         free(cmdlines[i]);
     }
     free(cmdlines);
