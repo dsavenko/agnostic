@@ -89,8 +89,9 @@ char* ag_component_dir(struct ag_project* project, struct ag_component* componen
 
 // Returns a list of components, which should be built before the given component. 
 // On success, the list always includes the given component as its last item. On failure to resolve dependencies, NULL is returned.
-// Components in the list are sorted appropriately. 
+// Components in the list are sorted appropriately.
+// If 'up_to_component' is not NULL, the list will be built up to this component only.
 // The list should be freed with ag_shallow_free_component_list().
-struct ag_component_list* ag_build_up_list(struct ag_project* project, struct ag_component* component);
+struct ag_component_list* ag_build_up_list(struct ag_project* project, struct ag_component* component, const char* up_to_component);
 
 #endif /* AGNOSTIC_H */

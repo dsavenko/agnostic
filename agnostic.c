@@ -232,7 +232,26 @@ char* ag_component_dir(struct ag_project* project, struct ag_component* componen
     return ret;
 }
 
-static struct ag_component_list* fill_build_up_list(struct ag_component_list* old_root, struct ag_project* project, struct ag_component* component) {
+static int is_component_in_branch(struct ag_project* project, struct ag_component* leaf, const char* name) {
+    if (!leaf) {
+        return 0;
+    }
+    if (!strcmp(leaf->name, name) || (leaf->alias && !strcmp(leaf->alias, name))) {
+        return 1;
+    }
+    for (struct ag_string_list* slist = leaf->build_after; slist; slist = slist->next) {
+        if (is_component_in_branch(project, ag_find_component(project, slist->s), name)) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static struct ag_component_list* fill_build_up_list(struct ag_component_list* old_root, struct ag_project* project, struct ag_component* component, 
+    const char* up_to_component) {
+
+    // TODO: heavy code here and in is_component_in_branch() function. Need to rewrite in a more efficient way
+
     if (!old_root) {
         return NULL;
     }
@@ -245,8 +264,10 @@ static struct ag_component_list* fill_build_up_list(struct ag_component_list* ol
         bool found = false;
         for (struct ag_component_list* l = project->components; l && !found; l = l->next) {
             if (!strcmp(l->component->name, s)) {
-                new_root = ag_create_component_node(l->component, new_root);
-                new_root = fill_build_up_list(new_root, project, l->component);
+                if (!up_to_component || is_component_in_branch(project, l->component, up_to_component)) {
+                    new_root = ag_create_component_node(l->component, new_root);
+                    new_root = fill_build_up_list(new_root, project, l->component, up_to_component);
+                }
                 found = true;
             }
         }
@@ -272,10 +293,10 @@ static void remove_duplicates(struct ag_component_list* list) {
     }
 }
 
-struct ag_component_list* ag_build_up_list(struct ag_project* project, struct ag_component* component) {
+struct ag_component_list* ag_build_up_list(struct ag_project* project, struct ag_component* component, const char* up_to_component) {
     assert(project);
     assert(component);
-    struct ag_component_list* ret = fill_build_up_list(ag_create_component_node(component, NULL), project, component);
+    struct ag_component_list* ret = fill_build_up_list(ag_create_component_node(component, NULL), project, component, up_to_component);
     remove_duplicates(ret);
     return ret;
 }

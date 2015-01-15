@@ -8,6 +8,8 @@
 #include <string.h>
 #include <assert.h>
 
+static int dry_run = 0;
+
 static struct ag_component* extract_component(struct ag_project* project, int argc, const char** argv) {
     struct ag_component* ret = NULL;
     if (1 == argc) {
@@ -16,7 +18,7 @@ static struct ag_component* extract_component(struct ag_project* project, int ar
         if (!strcmp("-c", *argv)) {
             ret = ag_find_component(project, *(argv+1));
         } else {
-            die("Unrecognized argument %s", *argv);
+            die("Unrecognized argument: %s", *argv);
         }
     } else if (0 == argc) {
         ret = ag_find_current_component(project);
@@ -32,6 +34,11 @@ static struct ag_component* extract_component(struct ag_project* project, int ar
 static void build_component(struct ag_project* project, struct ag_component* c) {
     assert(project);
     assert(c);
+
+    if (dry_run) {
+        printf("%s\n", c->name);
+        return;
+    }
 
     printf("Building %s\n", c->name);
 
@@ -91,15 +98,27 @@ static void build_list(struct ag_project* project, int argc, const char** argv) 
 }
 
 static void build_up(struct ag_project* project, int argc, const char** argv) {
-    struct ag_component_list* deps = ag_build_up_list(project, extract_component(project, argc, argv));
+    const char* up_to = NULL;
+
+    while (1 <= argc) {
+        if (!strcmp("-t", *argv) || !strcmp("--to", *argv)) {
+            if (2 > argc) {
+                die("Expected component name/alias after %s", *argv);
+            }
+            ++argv;
+            --argc;
+            up_to = *argv;
+        } else {
+            break;
+        }
+        ++argv;
+        --argc;
+    }
+
+    struct ag_component_list* deps = ag_build_up_list(project, extract_component(project, argc, argv), up_to);
     if (!deps) {
         die("Unable to resolve build order");
     }
-    printf("Build order:\n");
-    for (struct ag_component_list* l = deps; l; l = l->next) {
-        printf("%s ", l->component->name);
-    }
-    printf("\n");
     for (struct ag_component_list* l = deps; l; l = l->next) {
         build_component(project, l->component);
     }
@@ -108,6 +127,19 @@ static void build_up(struct ag_project* project, int argc, const char** argv) {
 
 void build(int argc, const char** argv) {
     struct ag_project* project = ag_load_default_or_die();
+
+    // options
+    while (1 <= argc) {
+        if (!strcmp("-n", *argv) || !strcmp("--dry-run", *argv)) {
+            dry_run = 1;
+        } else {
+            break;
+        }
+        --argc;
+        ++argv;
+    }
+
+    // command
     if (1 <= argc) {
         if (!strcmp("up", *argv)) {
             build_up(project, argc-1, argv+1);
