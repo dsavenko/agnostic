@@ -232,7 +232,7 @@ char* ag_component_dir(struct ag_project* project, struct ag_component* componen
     return ret;
 }
 
-static int is_component_in_branch(struct ag_project* project, struct ag_component* leaf, const char* name) {
+static int is_component_up_in_branch(struct ag_project* project, struct ag_component* leaf, const char* name) {
     if (!leaf) {
         return 0;
     }
@@ -240,7 +240,7 @@ static int is_component_in_branch(struct ag_project* project, struct ag_componen
         return 1;
     }
     for (struct ag_string_list* slist = leaf->build_after; slist; slist = slist->next) {
-        if (is_component_in_branch(project, ag_find_component(project, slist->s), name)) {
+        if (is_component_up_in_branch(project, ag_find_component(project, slist->s), name)) {
             return 1;
         }
     }
@@ -250,7 +250,7 @@ static int is_component_in_branch(struct ag_project* project, struct ag_componen
 static struct ag_component_list* fill_build_up_list(struct ag_component_list* old_root, struct ag_project* project, struct ag_component* component, 
     const char* up_to_component) {
 
-    // TODO: heavy code here and in is_component_in_branch() function. Need to rewrite in a more efficient way
+    // TODO: heavy code here and in is_component_up_in_branch() function. Need to rewrite in a more efficient way
 
     if (!old_root) {
         return NULL;
@@ -264,7 +264,7 @@ static struct ag_component_list* fill_build_up_list(struct ag_component_list* ol
         bool found = false;
         for (struct ag_component_list* l = project->components; l && !found; l = l->next) {
             if (!strcmp(l->component->name, s)) {
-                if (!up_to_component || is_component_in_branch(project, l->component, up_to_component)) {
+                if (!up_to_component || is_component_up_in_branch(project, l->component, up_to_component)) {
                     new_root = ag_create_component_node(l->component, new_root);
                     new_root = fill_build_up_list(new_root, project, l->component, up_to_component);
                 }
@@ -297,6 +297,56 @@ struct ag_component_list* ag_build_up_list(struct ag_project* project, struct ag
     assert(project);
     assert(component);
     struct ag_component_list* ret = fill_build_up_list(ag_create_component_node(component, NULL), project, component, up_to_component);
+    remove_duplicates(ret);
+    return ret;
+}
+
+static struct ag_component_list* fill_build_down_list(struct ag_component* root, struct ag_project* project, struct ag_component* down_cmp) {
+    if (!root) {
+        return NULL;
+    }
+
+    struct ag_component_list* ret = NULL;
+    struct ag_component_list* l = NULL;
+
+    struct ag_component_list* queue_head = ag_create_component_node(root, NULL);
+    struct ag_component_list* queue_total_head = queue_head;
+    struct ag_component_list* queue_tail = queue_head;
+    while (queue_head) {
+        struct ag_component* c = queue_head->component;
+        if (l) {
+            l->next = ag_create_component_node(c, NULL);
+            l = l->next;
+        } else {
+            ret = ag_create_component_node(c, NULL);
+            l = ret;
+        }
+        for (struct ag_component_list* pl = project->components; pl; pl = pl->next) {
+            struct ag_component* pc = pl->component;
+            for (struct ag_string_list* sl = pc->build_after; sl; sl = sl->next) {
+                if (!strcmp(sl->s, c->name)) {
+                    if (!down_cmp || is_component_up_in_branch(project, down_cmp, pc->name)) {
+                        queue_tail->next = ag_create_component_node(pc, NULL);
+                        queue_tail = queue_tail->next;
+                    }
+                    break;
+                }
+            }
+        }
+        queue_head = queue_head->next;
+    }
+    ag_shallow_free_component_list(queue_total_head);
+    return ret;
+}
+
+struct ag_component_list* ag_build_down_list(struct ag_project* project, struct ag_component* component, const char* down_to_component) {
+    assert(project);
+    assert(component);
+    struct ag_component* down_cmp = NULL;
+    if (down_to_component) {
+        down_cmp = ag_find_component(project, down_to_component);
+    }
+    struct ag_component_list* ret = fill_build_down_list(component, project, down_cmp);
     remove_duplicates(ret);
     return ret;
 }

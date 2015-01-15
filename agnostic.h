@@ -94,4 +94,11 @@ char* ag_component_dir(struct ag_project* project, struct ag_component* componen
 // The list should be freed with ag_shallow_free_component_list().
 struct ag_component_list* ag_build_up_list(struct ag_project* project, struct ag_component* component, const char* up_to_component);
 
+// Returns a list of components, which should be built after the given component. 
+// On success, the list always includes the given component as its first item. On failure to resolve dependencies, NULL is returned.
+// Components in the list are sorted appropriately.
+// If 'down_to_component' is not NULL, the list will be built down to this component only.
+// The list should be freed with ag_shallow_free_component_list().
+struct ag_component_list* ag_build_down_list(struct ag_project* project, struct ag_component* component, const char* down_to_component);
+
 #endif /* AGNOSTIC_H */

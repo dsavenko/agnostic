@@ -125,6 +125,34 @@ static void build_up(struct ag_project* project, int argc, const char** argv) {
     ag_shallow_free_component_list(deps);
 }
 
+static void build_down(struct ag_project* project, int argc, const char** argv) {
+    const char* down_to = NULL;
+
+    while (1 <= argc) {
+        if (!strcmp("-t", *argv) || !strcmp("--to", *argv)) {
+            if (2 > argc) {
+                die("Expected component name/alias after %s", *argv);
+            }
+            ++argv;
+            --argc;
+            down_to = *argv;
+        } else {
+            break;
+        }
+        ++argv;
+        --argc;
+    }
+
+    struct ag_component_list* deps = ag_build_down_list(project, extract_component(project, argc, argv), down_to);
+    if (!deps) {
+        die("Unable to resolve build order");
+    }
+    for (struct ag_component_list* l = deps; l; l = l->next) {
+        build_component(project, l->component);
+    }
+    ag_shallow_free_component_list(deps);
+}
+
 void build(int argc, const char** argv) {
     struct ag_project* project = ag_load_default_or_die();
 
@@ -143,6 +171,10 @@ void build(int argc, const char** argv) {
     if (1 <= argc) {
         if (!strcmp("up", *argv)) {
             build_up(project, argc-1, argv+1);
+
+        } else if (!strcmp("down", *argv)) {
+            build_down(project, argc-1, argv+1);
+            
         } else {
             build_list(project, argc, argv);
         }
