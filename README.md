@@ -36,8 +36,6 @@ All of this means, that what actually *defines* the project is its CI server. Th
 
 See the [docs](docs/) directory. 
 
-1. [project-file.md](docs/project-file.md): the project file format.
-
 ## Samples
 
 There are some samples in the [samples](samples/) directory. Go to a subdirectory and run `ag clone`.
