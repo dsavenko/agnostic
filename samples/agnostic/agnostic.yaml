@@ -6,6 +6,13 @@ project:
   docs: 
     - "https://github.com/dsavenko/agnostic/blob/master/README.md"
     - "https://github.com/dsavenko/agnostic/tree/master/docs"
+  tools:
+    - name: asciidoc
+      description: doc generation tool. 
+      info: http://www.methods.co.nz/asciidoc/index.html
+    - name: xmlto
+      description: shell-script tool for converting XML files to various formats.
+      info: https://fedorahosted.org/xmlto/
 
 ---
 component:
