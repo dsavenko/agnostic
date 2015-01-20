@@ -1,0 +1,21 @@
+= ag-project(1) =
+
+== NAME ==
+ag-project - information about project.
+
+== SYNOPSIS ==
+[verse]
+'ag project' [directories|dirs]
+
+== DESCRIPTION ==
+Provides information about the project. 
+
+== OPTIONS ==
+
+dirs::
+directories::
+    Instead of full information about the project prints a list of project directories.
+
+== SEE ALSO == 
+
+*agnostic.yaml[5]*, *ag-component[1]*

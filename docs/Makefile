@@ -7,7 +7,13 @@ XML_TO_MAN=$(XMLTO) man
 
 INSTALL=install
 
-MAN1_TXT =
+MAN1_TXT = \
+	ag.asciidoc \
+	ag-clone.asciidoc \
+	ag-project.asciidoc \
+	ag-component.asciidoc \
+	ag-remove.asciidoc \
+	ag-build.asciidoc
 
 MAN5_TXT = \
 	agnostic.yaml.asciidoc
@@ -46,7 +52,9 @@ install: all
 	$(INSTALL) -d -m 755 $(DESTDIR)$(man1dir)
 	$(INSTALL) -d -m 755 $(DESTDIR)$(man5dir)
 	$(INSTALL) -d -m 755 $(DESTDIR)$(man7dir)
+	$(INSTALL) -m 644 $(DOC_MAN1) $(DESTDIR)$(man1dir)
 	$(INSTALL) -m 644 $(DOC_MAN5) $(DESTDIR)$(man5dir)
 
 uninstall:
+	rm -f $(addprefix $(DESTDIR)$(man1dir)/, $(DOC_MAN1))
 	rm -f $(addprefix $(DESTDIR)$(man5dir)/, $(DOC_MAN5))

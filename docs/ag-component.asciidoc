@@ -1,0 +1,15 @@
+= ag-component(1) =
+
+== NAME ==
+ag-component - information about component.
+
+== SYNOPSIS ==
+[verse]
+'ag component' [component name or alias]
+
+== DESCRIPTION ==
+If component name or alias is given, prints information about that component. Otherwise, prints information about the current component.
+
+== SEE ALSO == 
+
+*agnostic.yaml[5]*, *ag-project[1]*

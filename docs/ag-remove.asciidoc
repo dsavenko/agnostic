@@ -1,0 +1,15 @@
+= ag-remove(1) =
+
+== NAME ==
+ag-remove - removes project.
+
+== SYNOPSIS ==
+[verse]
+'ag remove' 
+
+== DESCRIPTION ==
+Removes the project, i.e. undos everything 'ag clone' has done. 
+
+== SEE ALSO == 
+
+*agnostic.yaml[5]*, *ag-clone[1]*

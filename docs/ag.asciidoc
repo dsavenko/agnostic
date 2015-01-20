@@ -1,0 +1,46 @@
+= ag(1) =
+:bugtracker: https://github.com/dsavenko/agnostic/issues
+
+== NAME ==
+ag - Agnostic, a software project definition tool. 
+
+== SYNOPSIS ==
+[verse]
+'ag' <command> [<args>]
+
+== DESCRIPTION ==
+
+Agnostic is a software project definition tool. The goals are:
+
+1. Make  "Getting started" information available in one easily readable and parsable place, which is the project file;
+2. Untie a project from its CI server and bring unified development process experience.
+
+A software project is defined by the project file *agnostic.yaml*. Based on this file, 'ag' provides a number of commands to work with the project. 
+
+== COMMANDS ==
+
+`ag-help`::
+    Prints help.
+
+`ag-clone`::
+    Clone the project.
+
+`ag-remove`::
+    Removes project.
+
+`ag-project`::
+    Information about project.
+
+`ag-component`::
+    Information about component.
+
+`ag-build`::
+    Build components.
+
+== Reporting bugs ==
+
+Please, file issues here: {bugtracker}
+
+== SEE ALSO == 
+
+*agnostic.yaml[5]*

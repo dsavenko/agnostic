@@ -1,0 +1,58 @@
+= ag-build(1) =
+
+== NAME ==
+ag-build - build component.
+
+== SYNOPSIS ==
+[verse]
+'ag build' [-n | --dry-run] [<component1> <component2> ...]
+
+'ag build' [-n | --dry-run] up [-t <component>]
+
+'ag build' [-n | --dry-run] down [-t <component>]
+
+== DESCRIPTION ==
+Builds components.
+
+`ag build`::
+    Build current component or all the specified components. Components are specified by their names or aliases.
+
+`ag build up`::
+    Performs upstream build for the current component, i.e. builds all components this component depends on (directly or indirectly), then builds this component.
+
+`ag build down`::
+    Performs downstream build for the current component, i.e. builds this component, then builds all components, which are directly or indirectly depend on this component.
+
+== OPTIONS ==
+
+-n::
+--dry-run::
+    Don't do actual build, just print component names to be built.
+
+-t::
+--to::
+    Terminator for upstream/downstream builds. Do not build components above the specified component for upstream build. Do not build components below the specified component for upstream build. 
+
+== EXAMPLES ==
+
+Build current component:
+
+--------------------------------------------------------------
+    ag build    
+--------------------------------------------------------------
+
+Build some components:
+
+--------------------------------------------------------------
+    ag build comp_name1 comp_alias2 comp_name3
+--------------------------------------------------------------
+
+Build all dependencies of this component until comp1 (inclusive), then build this component:
+
+--------------------------------------------------------------
+    ag build up -t comp1
+--------------------------------------------------------------
+
+== SEE ALSO == 
+
+*agnostic.yaml[5]*, *ag-component[1]*
