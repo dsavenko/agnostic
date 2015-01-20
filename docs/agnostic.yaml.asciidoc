@@ -125,7 +125,3 @@ Dogfood project of Agnostic itself:
 --------------------------------------------------------------
 
 More samples are are in the samples/ directory of the Agnostic repository ({samples}). You may clone the repository, cd to samples/anything and run `ag clone' to see, how it works. 
-
-== AUTHOR ==
-
-Originally written by Dmitry Savenko, <ds@dsavenko.com>.
