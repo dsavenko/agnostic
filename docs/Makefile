@@ -10,7 +10,7 @@ INSTALL=install
 MAN1_TXT =
 
 MAN5_TXT = \
-	agnostic.yaml.txt
+	agnostic.yaml.asciidoc
 
 MAN7_TXT =
 
@@ -22,16 +22,16 @@ man1dir = $(mandir)/man1
 man5dir = $(mandir)/man5
 man7dir = $(mandir)/man7
 
-DOC_MAN1 = $(patsubst %.txt,%.1,$(MAN1_TXT))
-DOC_MAN5 = $(patsubst %.txt,%.5,$(MAN5_TXT))
-DOC_MAN7 = $(patsubst %.txt,%.7,$(MAN7_TXT))
+DOC_MAN1 = $(patsubst %.asciidoc,%.1,$(MAN1_TXT))
+DOC_MAN5 = $(patsubst %.asciidoc,%.5,$(MAN5_TXT))
+DOC_MAN7 = $(patsubst %.asciidoc,%.7,$(MAN7_TXT))
 DOC_MAN = $(DOC_MAN1) $(DOC_MAN5) $(DOC_MAN7)
 
 all: man
 
 man: $(DOC_MAN)
 
-%.xml: %.txt
+%.xml: %.asciidoc
 	$(TXT_TO_XML) $<
 
 %.1 %.5 %.7: %.xml

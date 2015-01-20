@@ -124,7 +124,7 @@ Dogfood project of Agnostic itself:
 
 --------------------------------------------------------------
 
-More samples are are in the `../samples/` directory of the Agnostic repository ({samples}). You may clone the repository, `cd' to a subdirectory of the `../samples/` directory and run `ag clone' to see, how it works. 
+More samples are are in the samples/ directory of the Agnostic repository ({samples}). You may clone the repository, cd to samples/anything and run `ag clone' to see, how it works. 
 
 == AUTHOR ==
 
