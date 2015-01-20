@@ -54,7 +54,3 @@ Build all dependencies of this component until comp1 (inclusive), then build thi
 --------------------------------------------------------------
     ag build up -t comp1
 --------------------------------------------------------------
-
-== SEE ALSO == 
-
-*agnostic.yaml[5]*, *ag-component[1]*

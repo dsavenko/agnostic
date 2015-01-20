@@ -9,7 +9,3 @@ ag-component - information about component.
 
 == DESCRIPTION ==
 If component name or alias is given, prints information about that component. Otherwise, prints information about the current component.
-
-== SEE ALSO == 
-
-*agnostic.yaml[5]*, *ag-project[1]*

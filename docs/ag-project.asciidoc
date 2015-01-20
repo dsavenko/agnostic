@@ -15,7 +15,3 @@ Provides information about the project.
 dirs::
 directories::
     Instead of full information about the project prints a list of project directories.
-
-== SEE ALSO == 
-
-*agnostic.yaml[5]*, *ag-component[1]*

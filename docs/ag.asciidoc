@@ -40,7 +40,3 @@ A software project is defined by the project file *agnostic.yaml*. Based on this
 == Reporting bugs ==
 
 Please, file issues here: {bugtracker}
-
-== SEE ALSO == 
-
-*agnostic.yaml[5]*

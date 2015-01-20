@@ -11,7 +11,3 @@ ag-clone - clone project.
 Clones all project components into subdirectories (named after component names) of the working directory. If a component has an alias, a symlink, named after it, is created and points to the component directory. 
 
 Requires *agnostic.yaml* file. 
-
-== SEE ALSO == 
-
-*agnostic.yaml[5]*, *ag-remove[1]*
