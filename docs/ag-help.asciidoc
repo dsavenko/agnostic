@@ -1,0 +1,11 @@
+= ag-help(1) =
+
+== NAME ==
+ag-help - prints help.
+
+== SYNOPSIS ==
+[verse]
+'ag help' <topic | command>
+
+== DESCRIPTION ==
+Prints help for the given command, or on the given topic. Run without arguments to get a list of available topics and commands.

@@ -19,22 +19,22 @@ A software project is defined by the project file *agnostic.yaml*. Based on this
 
 == COMMANDS ==
 
-`ag-help`::
+`help`::
     Prints help.
 
-`ag-clone`::
+`clone`::
     Clone the project.
 
-`ag-remove`::
+`remove`::
     Removes project.
 
-`ag-project`::
+`project`::
     Information about project.
 
-`ag-component`::
+`component`::
     Information about component.
 
-`ag-build`::
+`build`::
     Build components.
 
 == Reporting bugs ==

@@ -33,17 +33,46 @@ static struct cmd_struct commands[] = {
         { "remove", "", NULL }
     };
 
+static const char* help_topics[] = {
+        "ag",
+        "agnostic.yaml"
+    };
+
 static void help(int argc, const char** argv) {
-    printf("%s\n%s", "ag <command>", "Recognized commands: ");
-    for (int i = 0; i < ARRAY_SIZE(commands); ++i) {
-        struct cmd_struct* c = commands + i;
-        printf("%s", c->name);
-        if (c->shortcut && c->shortcut[0]) {
-            printf("/%s", c->shortcut);
+    if (1 != argc) {
+        printf("usage: ag help <topic | command>\n\nTopics are:\n");
+        for (int i = 0; i < ARRAY_SIZE(help_topics); ++i) {
+            printf("\t%s\n", help_topics[i]);
         }
-        printf(" ");
+        printf("\nCommands are:\n");
+        for (int i = 0; i < ARRAY_SIZE(commands); ++i) {
+            printf("\t%s\n", (commands + i)->name);
+        }
+    } else {
+        char* man = NULL;
+        for (int i = 0; !man && i < ARRAY_SIZE(help_topics); ++i) {
+            if (!strcmp(help_topics[i], *argv)) {
+                man = (char*)*argv;
+            }
+        }
+        for (int i = 0; !man && i < ARRAY_SIZE(commands); ++i) {
+            if (!strcmp((commands + i)->name, *argv)) {
+                if (-1 == asprintf(&man, "ag-%s", *argv)) {
+                    die("Out of memory, asprintf failed");
+                }
+            }
+        }
+        if (!man) {
+            die("Help not found for %s", *argv);
+        }
+        char* man_argv[3];
+        man_argv[0] = "man";
+        man_argv[1] = (char*)man;
+        man_argv[2] = NULL;
+        execvp("man", man_argv);
+        perror(NULL);
+        die("Unable to run 'man'");
     }
-    printf("\n");
 }
 
 static void setup_path(const char* exec_path) {
