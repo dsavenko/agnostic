@@ -48,5 +48,11 @@ clean:
 install: all
 	$(INSTALL) -m 0755 $(ALL_PROGRAMS) $(prefix)/bin
 
+install-doc:
+	$(MAKE) -C docs/ install
+
 uninstall:
-	rm $(addprefix $(prefix)/bin/, $(ALL_PROGRAMS))
+	rm -f $(addprefix $(prefix)/bin/, $(ALL_PROGRAMS))
+
+uninstall-doc:
+	$(MAKE) -C docs/ uninstall

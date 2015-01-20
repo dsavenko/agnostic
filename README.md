@@ -44,15 +44,21 @@ There are some samples in the [samples](samples/) directory. Go to a subdirector
 
 ## Build
 
-Download and build [libyaml](http://pyyaml.org/wiki/LibYAML).
+Download and build [libyaml](http://pyyaml.org/wiki/LibYAML):
 
     hg clone https://bitbucket.org/xi/libyaml yaml
     cd yaml
     ./bootstrap
     ./configure
     make
-    sudo make install 
+    sudo make install
 
-Make agnostic
+Make and install agnostic:
 
-    make 
+    make install
+    #if you want man pages, also run this:
+    make install-doc
+
+Uninstall:
+
+    make uninstall uninstall-doc

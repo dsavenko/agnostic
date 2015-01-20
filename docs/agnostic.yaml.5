@@ -1,0 +1,190 @@
+'\" t
+.\"     Title: agnostic.yaml
+.\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
+.\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
+.\"      Date: 01/20/2015
+.\"    Manual: \ \&
+.\"    Source: \ \&
+.\"  Language: English
+.\"
+.TH "AGNOSTIC\&.YAML" "5" "01/20/2015" "\ \&" "\ \&"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+agnostic.yaml \- specifies Agnostic project\&.
+.SH "SYNOPSIS"
+.sp
+agnostic\&.yaml
+.SH "DESCRIPTION"
+.sp
+An Agnostic project file (agnostic\&.yaml) is a YAML file that describes the project with all its components, gives links to the documentation, repositories, contacts and so on\&. Ideally, to join a project, a developer should need no more than the project file, which replaces traditional "Getting started" e\-mails or wiki pages\&.
+.sp
+The project file format is not strictly specified, so it may vary depending on the needs of a particular project\&. Common and recognizable by the command line tool parts are described below\&. Any project should respect these conventions\&.
+.SH "STRUCTURE"
+.sp
+A project file is a YAML (\m[blue]\fBhttp://www\&.yaml\&.org/spec/1\&.2/spec\&.html\fR\m[]) file\&. It contains at least one YAML document (for the project itself), and, optionally, more documents for components\&. Documents are separated by a line of three dashes (\-\-\-)\&.
+.SS "Project document"
+.sp
+The project document must present in the file once\&. It should be the first document in the file\&. It must have top\-level mapping node project\&. Recognizable structure is as follows:
+.PP
+name
+.RS 4
+\fB(required)\fR
+the project\(cqs full name\&.
+.RE
+.PP
+description
+.RS 4
+human\-readable description of the project\&.
+.RE
+.PP
+bugs
+.RS 4
+URL of the bug tracker\&.
+.RE
+.PP
+docs
+.RS 4
+a
+\fIlist\fR
+of documentation sources\&. Each item is either a URL, or a human\-readable text\&.
+.RE
+.PP
+tools
+.RS 4
+a
+\fIlist\fR
+of tools to use\&. Each item is a mapping node, described below\&.
+.PP
+name
+.RS 4
+\fB(required)\fR
+the tool\(cqs name\&.
+.RE
+.PP
+description
+.RS 4
+human\-readable description of the tool\&.
+.RE
+.PP
+info
+.RS 4
+URL to general resources about the tool, like the tool\(cqs site\&.
+.RE
+.PP
+download
+.RS 4
+direct link to download the tool\&.
+.RE
+.RE
+.SS "Component document"
+.sp
+A component document describes a single component of the project\&. If the project is not split into components (e\&.g\&. it resides in a single repository and doesn\(cqt depend on anything unusual), there \fIshould\fR still be one component to describe the project\(cqs sole source location\&.
+.sp
+A component document must have top\-level mapping node component\&. Recognizable structure is as follows:
+.PP
+name
+.RS 4
+\fB(required)\fR
+the component\(cqs full name\&.
+.RE
+.PP
+description
+.RS 4
+human\-readable description of the component\&.
+.RE
+.PP
+alias
+.RS 4
+the component\(cqs short name\&.
+.RE
+.PP
+git, hg
+.RS 4
+the component\(cqs source repository (Git or Mercurial,
+\fIbut not both\fR) in a form suitable to run \(oqgit clone\(cq or \(oqhg clone\(cq\&.
+.RE
+.PP
+build
+.RS 4
+shell script to build the component locally (developer build)\&.
+.RE
+.PP
+integrate
+.RS 4
+shell script to perform integration build\&.
+.RE
+.PP
+buildAfter
+.RS 4
+a list of names or aliases of other components from this file, which should be built before this component\&.
+.RE
+.SH "EXAMPLE"
+.sp
+Dogfood project of Agnostic itself:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+    \-\-\-
+    project:
+      name: Agnostic
+      description: Project definition tool (dogfood project)\&.
+      bugs: https://github\&.com/dsavenko/agnostic/issues
+      docs:
+        \- "https://github\&.com/dsavenko/agnostic/blob/master/README\&.md"
+        \- "https://github\&.com/dsavenko/agnostic/tree/master/docs"
+      tools:
+        \- name: asciidoc
+          description: doc generation tool\&.
+          info: http://www\&.methods\&.co\&.nz/asciidoc/index\&.html
+        \- name: xmlto
+          description: shell\-script tool for converting XML files to various formats\&.
+          info: https://fedorahosted\&.org/xmlto/
+
+    \-\-\-
+    component:
+      name: libyaml
+      alias: yaml
+      description: "YAML parser"
+      hg: https://bitbucket\&.org/xi/libyaml
+      build: |
+        \&./bootstrap
+        \&./configure
+        make
+        sudo make install
+
+    \-\-\-
+    component:
+      name: agnostic
+      alias: ag
+      description: "Main tool"
+      git: https://github\&.com/dsavenko/agnostic\&.git
+      build: |
+        make
+      buildAfter:
+        \- libyaml
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+More samples are are in the samples/ directory of the Agnostic repository (\m[blue]\fBhttps://github\&.com/dsavenko/agnostic/tree/master/samples\fR\m[])\&. You may clone the repository, cd to samples/anything and run \(oqag clone\(cq to see, how it works\&.
