@@ -38,7 +38,7 @@ The project document must present in the file once. It should be the first docum
     URL of the bug tracker.
 
 `docs`:: 
-    a *list* of documentation sources. Each item is either a URL, or a human-readable text.
+    a _list_ of documentation sources. Each item is either a URL, or a human-readable text.
 
 `tools`:: 
     a _list_ of tools to use. Each item is a mapping node, described below.
@@ -137,4 +137,4 @@ More samples are are in the `../samples/` directory of the Agnostic repository (
 AUTHOR
 ------
 
-Written by Dmitry Savenko, <ds@dsavenko.com>.
+Originally written by Dmitry Savenko, <ds@dsavenko.com>.
