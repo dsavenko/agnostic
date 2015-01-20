@@ -5,7 +5,7 @@ ag-project - information about project.
 
 == SYNOPSIS ==
 [verse]
-'ag project' [directories|dirs]
+'ag project' | 'ag proj' [directories|dirs]
 
 == DESCRIPTION ==
 Provides information about the project. 

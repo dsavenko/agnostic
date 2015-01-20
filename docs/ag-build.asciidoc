@@ -7,8 +7,10 @@ ag-build - build component.
 [verse]
 'ag build' [-n | --dry-run] [<component1> <component2> ...]
 
+[verse]
 'ag build' [-n | --dry-run] up [-t <component>]
 
+[verse]
 'ag build' [-n | --dry-run] down [-t <component>]
 
 == DESCRIPTION ==

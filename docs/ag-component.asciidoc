@@ -5,7 +5,7 @@ ag-component - information about component.
 
 == SYNOPSIS ==
 [verse]
-'ag component' [component name or alias]
+'ag component' | 'ag comp' [component name or alias]
 
 == DESCRIPTION ==
 If component name or alias is given, prints information about that component. Otherwise, prints information about the current component.
