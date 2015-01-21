@@ -13,6 +13,9 @@ ag-build - build component.
 [verse]
 'ag build' [-n | --dry-run] down [-t <component>]
 
+[verse]
+'ag build' [-n | --dry-run] all
+
 == DESCRIPTION ==
 Builds components.
 
@@ -24,6 +27,9 @@ Builds components.
 
 `ag build down`::
     Performs downstream build for the current component, i.e. builds this component, then builds all components, which are directly or indirectly depend on this component.
+
+`ag build all`::
+    Builds all components.
 
 == OPTIONS ==
 

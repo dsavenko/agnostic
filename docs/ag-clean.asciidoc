@@ -13,6 +13,9 @@ ag-clean - clean component.
 [verse]
 'ag clean' [-n | --dry-run] down [-t <component>]
 
+[verse]
+'ag clean' [-n | --dry-run] all
+
 == DESCRIPTION ==
 Cleans components.
 
@@ -22,8 +25,8 @@ Cleans components.
 `ag clean up`::
     Performs upstream cleaning for the current component, i.e. cleans all components this component depends on (directly or indirectly), then cleans this component.
 
-`ag clean down`::
-    Performs downstream cleaning for the current component, i.e. cleans this component, then cleans all components, which are directly or indirectly depend on this component.
+`ag clean all`::
+    Cleans all components.
 
 == OPTIONS ==
 

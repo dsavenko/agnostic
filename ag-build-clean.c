@@ -183,6 +183,10 @@ static struct ag_component_list* list_up_down(struct ag_project* project, int up
     return ret;
 }
 
+static struct ag_component_list* list_all(struct ag_project* project) {
+    return ag_build_all_list(project);
+}
+
 static void perform_main(void (*p)(struct ag_project*, struct ag_component*), int argc, const char** argv) {
     struct ag_project* project = ag_load_default_or_die();
 
@@ -207,6 +211,9 @@ static void perform_main(void (*p)(struct ag_project*, struct ag_component*), in
 
         } else if (!strcmp("down", *argv)) {
             list = list_up_down(project, 0, argc-1, argv+1);
+            
+        } else if (!strcmp("all", *argv)) {
+            list = list_all(project);
             
         } else {
             list = list_list(project, argc, argv);

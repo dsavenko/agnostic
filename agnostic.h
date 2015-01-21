@@ -102,4 +102,8 @@ struct ag_component_list* ag_build_up_list(struct ag_project* project, struct ag
 // The list should be freed with ag_shallow_free_component_list().
 struct ag_component_list* ag_build_down_list(struct ag_project* project, struct ag_component* component, const char* down_to_component);
 
+// Returns a list of all components in the correct build order. 
+// The list should be freed with ag_shallow_free_component_list().
+struct ag_component_list* ag_build_all_list(struct ag_project* project);
+
 #endif /* AGNOSTIC_H */

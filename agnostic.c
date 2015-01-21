@@ -351,3 +351,34 @@ struct ag_component_list* ag_build_down_list(struct ag_project* project, struct 
     remove_duplicates(ret);
     return ret;
 }
+
+struct ag_component_list* ag_build_all_list(struct ag_project* project) {
+    assert(project);
+    struct ag_component_list* ret = NULL;
+    struct ag_component_list* tail = NULL;
+    for (struct ag_component_list* i = project->components; i; i = i->next) {
+        int found = 0;
+        for (struct ag_component_list* j = ret, *prev_j = NULL; j; prev_j = j, j = j->next) {
+            if (is_component_up_in_branch(project, j->component, i->component->name)) {
+                struct ag_component_list* n = ag_create_component_node(i->component, j);
+                if (prev_j) {
+                    prev_j->next = n;
+                } else {
+                    ret = n;
+                }
+                found = 1;
+                break;
+            }
+        }
+        if (!found) {
+            if (ret) {
+                tail->next = ag_create_component_node(i->component, NULL);
+                tail = tail->next;
+            } else {
+                ret = ag_create_component_node(i->component, NULL);
+                tail = ret;
+            }
+        }
+    }
+    return ret;
+}
