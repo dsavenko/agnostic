@@ -47,7 +47,7 @@ int dir_exists(const char* path);
 char* create_temp_file(const char* prefix, const char* content);
 
 // Runs the given command line. Returns child process PID, or -1 on failure.
-pid_t run_cmd_line(const char* cmd_line);
+pid_t run_cmd_line(const char* cmd_line, int supress_output);
 
 // Runs script with the given file name from the given directory. Returns child process PID, or -1 on failure.
 pid_t run_script(const char* dir, const char* script_file_name);

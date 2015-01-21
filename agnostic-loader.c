@@ -114,7 +114,7 @@ static struct ag_string_list** append_string_node(char* s, struct ag_string_list
 int ag_load_default(struct ag_project** project) {
     char* cfg_file = ag_find_project_file();
     if (!cfg_file) {
-        return 3;
+        return FILE_NOT_FOUND;
     }
     int ret = ag_load(cfg_file, project);
     free(cfg_file);

@@ -21,7 +21,7 @@ static void checked_symlink(const char* name, const char* alias, int check_exist
     }
 }
 
-void clone(int argc, const char** argv) { 
+static void clone_current() {
     struct ag_project* project = ag_load_default_or_die();
     struct ag_component_list* l = project->components;
     int i = 0;
@@ -56,7 +56,7 @@ void clone(int argc, const char** argv) {
         }
 
         printf("Starting cloning %s\n", c->name);
-        int child_pid = run_cmd_line(cmdline);
+        int child_pid = run_cmd_line(cmdline, 1);
         if (-1 == child_pid) {
             perror(NULL);
             fprintf(stderr, "Failed to run clone for %s\n", c->name);
@@ -102,4 +102,33 @@ void clone(int argc, const char** argv) {
     }
     free(cmdlines);
     ag_free(project);
+}
+
+static void clone_url(const char* url) {
+    printf("Downloading project file\n");
+    char* cmdline = NULL;
+    asprintf(&cmdline, "curl -sS -o agnostic.yaml \"%s\"", url);
+    run_cmd_line(cmdline, 0);
+    int status = 0;
+    wait(&status);
+    if (WIFEXITED(status)) {
+        if (WEXITSTATUS(status)) {
+            printf("Failed to download %s. Please, download it manually, then run 'ag clone'\n", url);
+        } else {
+            clone_current();
+        }
+    } else {
+        printf("Stopped downloading %s\n", url);
+    }
+    free(cmdline);
+}
+
+void clone(int argc, const char** argv) { 
+    if (0 == argc) {
+        clone_current();
+    } else if (1 == argc) {
+        clone_url(*argv);
+    } else {
+        die("Too many arguments.");
+    }
 }
