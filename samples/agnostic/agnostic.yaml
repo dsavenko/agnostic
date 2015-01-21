@@ -25,6 +25,8 @@ component:
     ./configure
     make
     sudo make install
+  clean: |
+    make clean
 
 ---
 component:
@@ -34,5 +36,7 @@ component:
   git: https://github.com/dsavenko/agnostic.git
   build: |
     make
+  clean: |
+    make clean
   buildAfter: 
     - libyaml

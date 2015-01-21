@@ -37,6 +37,9 @@ A software project is defined by the project file *agnostic.yaml*. Based on this
 `build`::
     Build components.
 
+`clean`::
+    Clean components.
+
 == Reporting bugs ==
 
 Please, file issues here: {bugtracker}

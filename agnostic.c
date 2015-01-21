@@ -81,6 +81,7 @@ static void ag_free_component(struct ag_component* c) {
     free(c->hg);
     free(c->build);
     free(c->integrate);
+    free(c->clean);
     ag_free_string_list(c->build_after);
     free(c);
 }

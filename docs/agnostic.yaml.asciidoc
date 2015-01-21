@@ -74,6 +74,9 @@ A component document must have top-level mapping node `component`. Recognizable 
 `integrate`:: 
     shell script to perform integration build.
 
+`clean`:: 
+    shell script to clean the component (undo previously done build).
+
 `buildAfter`:: 
     a list of names or aliases of other components from this file, which should be built before this component.
 

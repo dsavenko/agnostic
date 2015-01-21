@@ -14,7 +14,8 @@ MAN1_TXT = \
 	ag-component.asciidoc \
 	ag-remove.asciidoc \
 	ag-build.asciidoc \
-	ag-help.asciidoc
+	ag-help.asciidoc \
+	ag-clean.asciidoc
 
 MAN5_TXT = \
 	agnostic.yaml.asciidoc

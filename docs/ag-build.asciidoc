@@ -17,7 +17,7 @@ ag-build - build component.
 Builds components.
 
 `ag build`::
-    Build current component or all the specified components. Components are specified by their names or aliases.
+    Builds current component or all the specified components. Components are specified by their names or aliases.
 
 `ag build up`::
     Performs upstream build for the current component, i.e. builds all components this component depends on (directly or indirectly), then builds this component.
@@ -33,7 +33,7 @@ Builds components.
 
 -t::
 --to::
-    Terminator for upstream/downstream builds. Do not build components above the specified component for upstream build. Do not build components below the specified component for upstream build. 
+    Terminator for upstream/downstream builds. Do not build components above the specified component for upstream build. Do not build components below the specified component for downstream build. 
 
 == EXAMPLES ==
 

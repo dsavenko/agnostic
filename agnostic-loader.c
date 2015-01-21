@@ -292,6 +292,9 @@ int ag_load(const char* file_name, struct ag_project** project) {
                         } else if (!strcmp(key, "integrate")) {
                             (*c)->component->integrate = xstrdup((const char*)token.data.scalar.value);
 
+                        } else if (!strcmp(key, "clean")) {
+                            (*c)->component->clean = xstrdup((const char*)token.data.scalar.value);
+
                         }
 
                     } else if (s_component_build_after == stack->state) {

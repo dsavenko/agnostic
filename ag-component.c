@@ -38,6 +38,9 @@ static void print_component(struct ag_component* c) {
             printf(PROP_COLOR "Integration build:" TERM_COLOR_RESET "\n%s\n", c->integrate);
         }
     }
+    if (c->clean) {
+        printf(PROP_COLOR "Clean:" TERM_COLOR_RESET "\n%s\n", c->clean);
+    }
 }
 
 void component(int argc, const char** argv) {

@@ -10,7 +10,7 @@ INSTALL=install
 
 INCLUDES = yaml/include
 
-LIB_OBJS = agnostic.o agnostic-loader.o common.o ag-clone.o ag-component.o ag-build.o ag-project.o
+LIB_OBJS = agnostic.o agnostic-loader.o common.o ag-clone.o ag-component.o ag-build-clean.o ag-project.o
 
 LIB_FILE = libagnostic.a
 

@@ -16,6 +16,7 @@ struct cmd_struct {
 extern void clone(int argc, const char** argv);
 extern void component(int argc, const char** argv);
 extern void build(int argc, const char** argv);
+extern void clean(int argc, const char** argv);
 extern void project(int argc, const char** argv);
 
 static void help(int argc, const char** argv);
@@ -28,6 +29,7 @@ static struct cmd_struct commands[] = {
         { "project", "proj", &project },
         { "build", "", &build },
         { "help", "", &help },
+        { "clean", "", &clean },
 
         // scripts
         { "remove", "", NULL }
