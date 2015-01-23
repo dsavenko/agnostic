@@ -1,8 +1,6 @@
 #ifndef AGNOSTIC_H
 #define AGNOSTIC_H
 
-#include <stdbool.h>
-
 struct ag_string_list {
     char* s;
     struct ag_string_list* next;

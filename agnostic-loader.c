@@ -166,8 +166,8 @@ int ag_load(const char* file_name, struct ag_project** project) {
     struct structure_stack* stack = NULL;
     char* key = NULL;
 
-    bool is_key = false;
-    bool eof = false;
+    int is_key = 0;
+    int eof = 0;
     int ret = OK;
 
     while (!eof) {
@@ -175,15 +175,15 @@ int ag_load(const char* file_name, struct ag_project** project) {
         debug_print("token %s\n", yaml_token_names[token.type]);
         switch(token.type) {
             case YAML_STREAM_END_TOKEN:
-                eof = true;
+                eof = 1;
                 break;
 
             case YAML_KEY_TOKEN:   
-                is_key = true;
+                is_key = 1;
                 break;
 
             case YAML_VALUE_TOKEN: 
-                is_key = false;
+                is_key = 0;
                 break;
 
             case YAML_DOCUMENT_START_TOKEN:
@@ -207,7 +207,7 @@ int ag_load(const char* file_name, struct ag_project** project) {
                 }
                 if (s_doc_root == stack->state && !strcmp(key, "project")) {
                     if ((*project)->components) {
-                        eof = true;
+                        eof = 1;
                         ret = PROJECT_GOES_AFTER_COMPONENT;
                         break;
                     }

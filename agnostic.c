@@ -44,7 +44,7 @@ struct ag_string_list* ag_create_string_node(char* s, struct ag_string_list* nex
 
 static void ag_free_component(struct ag_component* c);
 
-static void ag_free_component_list(struct ag_component_list* c, bool free_components) {
+static void ag_free_component_list(struct ag_component_list* c, int free_components) {
     struct ag_component_list* n = NULL;
     while (c) {
         if (free_components) {
@@ -57,7 +57,7 @@ static void ag_free_component_list(struct ag_component_list* c, bool free_compon
 }
 
 void ag_shallow_free_component_list(struct ag_component_list* c) {
-    ag_free_component_list(c, false);
+    ag_free_component_list(c, 0);
 }
 
 void ag_free_string_list(struct ag_string_list* l) {
@@ -95,12 +95,12 @@ void ag_free(struct ag_project* p) {
     free(p->bugs);
     free(p->dir);
     free(p->file);
-    ag_free_component_list(p->components, true);
+    ag_free_component_list(p->components, 1);
     ag_free_string_list(p->docs);
     free(p);
 }
 
-static bool file_exist(const char* fname) {
+static int file_exist(const char* fname) {
     return access(fname, F_OK) != -1;
 }
 
@@ -262,14 +262,14 @@ static struct ag_component_list* fill_build_up_list(struct ag_component_list* ol
     for (struct ag_string_list* slist = component->build_after; slist; slist = slist->next) {
         const char* s = slist->s;
 
-        bool found = false;
+        int found = 0;
         for (struct ag_component_list* l = project->components; l && !found; l = l->next) {
             if (!strcmp(l->component->name, s)) {
                 if (!up_to_component || is_component_up_in_branch(project, l->component, up_to_component)) {
                     new_root = ag_create_component_node(l->component, new_root);
                     new_root = fill_build_up_list(new_root, project, l->component, up_to_component);
                 }
-                found = true;
+                found = 1;
             }
         }
 
