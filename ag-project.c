@@ -1,6 +1,6 @@
 
 #include "agnostic.h"
-#include "common.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,23 +19,25 @@ static void print_all(struct ag_project* p) {
     }
     if (p->docs) {
         printf(PROP_COLOR "Documentation:\n" TERM_COLOR_RESET);
-        for (struct ag_string_list* l = p->docs; l; l = l->next) {
-            printf("  - %s\n", l->s);
+        for (struct list* l = p->docs; l; l = l->next) {
+            printf("  - %s\n", l->data);
         }
     }
     if (p->components) {
         printf(PROP_COLOR "Components (%d):\n" TERM_COLOR_RESET, p->component_count);
-        for (struct ag_component_list* l = p->components; l; l = l->next) {
-            printf("  - %s\n", l->component->name);
+        for (struct list* l = p->components; l; l = l->next) {
+            struct ag_component* c = (struct ag_component*)l->data;
+            printf("  - %s\n", c->name);
         }
     }
 }
 
 static void print_directories(struct ag_project* p) {
-    for (struct ag_component_list* l = p->components; l; l = l->next) {
-        printf("%s/%s\n", p->dir, l->component->name);
-        if (l->component->alias) {
-            printf("%s/%s\n", p->dir, l->component->alias);
+    for (struct list* l = p->components; l; l = l->next) {
+        struct ag_component* c = (struct ag_component*)l->data;
+        printf("%s/%s\n", p->dir, c->name);
+        if (c->alias) {
+            printf("%s/%s\n", p->dir, c->alias);
         }
     }
 }

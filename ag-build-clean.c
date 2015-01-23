@@ -1,6 +1,5 @@
 
 #include "agnostic.h"
-#include "common.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -127,13 +126,13 @@ static void clean_component(struct ag_project* project, struct ag_component* c) 
     }
 }
 
-static struct ag_component_list* list_current(struct ag_project* project) {
-    return ag_create_component_node(extract_component(project, 0, NULL), NULL);
+static struct list* list_current(struct ag_project* project) {
+    return list_create(extract_component(project, 0, NULL), NULL);
 }
 
-static struct ag_component_list* list_list(struct ag_project* project, int argc, const char** argv) {
-    struct ag_component_list* ret = NULL;
-    struct ag_component_list* t = NULL;
+static struct list* list_list(struct ag_project* project, int argc, const char** argv) {
+    struct list* ret = NULL;
+    struct list* tail = NULL;
     while (0 < argc) {
         struct ag_component* c = ag_find_component(project, *argv);
         // TODO: re-write this to support -c and use extract_component()
@@ -142,18 +141,12 @@ static struct ag_component_list* list_list(struct ag_project* project, int argc,
         }
         --argc;
         ++argv;
-        if (ret) {
-            t->next = ag_create_component_node(c, NULL);
-            t = t->next;
-        } else {
-            ret = ag_create_component_node(c, NULL);
-            t = ret;
-        }
+        list_add(&ret, &tail, c);
     }
     return ret;
 }
 
-static struct ag_component_list* list_up_down(struct ag_project* project, int up, int argc, const char** argv) {
+static struct list* list_up_down(struct ag_project* project, int up, int argc, const char** argv) {
     const char* up_to = NULL;
 
     while (1 <= argc) {
@@ -171,7 +164,7 @@ static struct ag_component_list* list_up_down(struct ag_project* project, int up
         --argc;
     }
 
-    struct ag_component_list* ret = NULL;
+    struct list* ret = NULL;
     if (up) {
         ret = ag_build_up_list(project, extract_component(project, argc, argv), up_to);        
     } else {
@@ -183,7 +176,7 @@ static struct ag_component_list* list_up_down(struct ag_project* project, int up
     return ret;
 }
 
-static struct ag_component_list* list_all(struct ag_project* project) {
+static struct list* list_all(struct ag_project* project) {
     return ag_build_all_list(project);
 }
 
@@ -202,7 +195,7 @@ static void perform_main(void (*p)(struct ag_project*, struct ag_component*), in
         ++argv;
     }
 
-    struct ag_component_list* list = NULL;
+    struct list* list = NULL;
 
     // command
     if (1 <= argc) {
@@ -222,15 +215,16 @@ static void perform_main(void (*p)(struct ag_project*, struct ag_component*), in
         list = list_current(project);
     }
 
-    for (struct ag_component_list* i = list; i; i = i->next) {
+    for (struct list* i = list; i; i = i->next) {
+        struct ag_component* c = (struct ag_component*)i->data;
         if (dry_run) {
-            printf("%s\n", i->component->name);
+            printf("%s\n", c->name);
         } else {
-            p(project, i->component);
+            p(project, c);
         }
     }
 
-    ag_shallow_free_component_list(list);
+    list_free(list, NULL);
     ag_free(project);    
 }
 

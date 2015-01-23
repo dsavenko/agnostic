@@ -52,5 +52,25 @@ pid_t run_cmd_line(const char* cmd_line, int supress_output);
 // Runs script with the given file name from the given directory. Returns child process PID, or -1 on failure.
 pid_t run_script(const char* dir, const char* script_file_name);
 
+struct list {
+    void* data;
+    struct list* next;
+};
+
+// Creates a new list node. If data is NULL, returns NULL. If next is not NULL, sets it as the next node for the newly created node. 
+// I.e. adds a node as head to the existing list.
+struct list* list_create(void* data, struct list* next);
+
+// Frees the list. If free_data is NULL, performs shallow free (does not remove data for each node). 
+// If free_data is not NULL, it is called for data of each element and should free it.
+void list_free(struct list* list, void (*free_data)(void*));
+
+// Adds a new node to the tails of the existing list. 'Head' and tail should point to the list's head and tail respectively.
+// '*head' and/or '*tail' may be NULL. 
+void list_add(struct list** head, struct list** tail, void* data);
+
+// Removes node from the head of the given list. Returns the node's data. 
+void* list_pop(struct list** head);
+
 #endif // RUN_CMD
 

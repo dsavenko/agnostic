@@ -121,3 +121,56 @@ pid_t run_script(const char* dir, const char* script_file_name) {
     }
     return child_pid;
 }
+
+struct list* list_create(void* data, struct list* next) {
+    if (!data) {
+        return NULL;
+    }
+    struct list* ret = (struct list*)xcalloc(1, sizeof(struct list));
+    ret->data = data;
+    ret->next = next;
+    return ret;    
+}
+
+void list_free(struct list* list, void (*free_data)(void*)) {
+    if (!list) {
+        return;
+    }
+    struct list* n = NULL;
+    while (list) {
+        if (free_data) {
+            free_data(list->data);
+        }
+        n = list->next;
+        free(list);
+        list = n;
+    }
+}
+
+void list_add(struct list** head, struct list** tail, void* data) {
+    assert(head);
+    assert(tail);
+
+    if (!data) {
+        return;
+    }
+    if (*head) {
+        (*tail)->next = list_create(data, NULL);
+        (*tail) = (*tail)->next;
+    } else {
+        *head = list_create(data, NULL);
+        *tail = *head;
+    }
+}
+
+void* list_pop(struct list** head) {
+    assert(head);
+    if (!*head) {
+        return NULL;
+    }
+    void* ret = (*head)->data;
+    struct list* n = *head;
+    (*head) = (*head)->next;
+    free(n);
+    return ret;
+}

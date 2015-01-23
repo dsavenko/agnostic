@@ -1,6 +1,5 @@
 
 #include "agnostic.h"
-#include "common.h"
 
 #include <sys/wait.h>
 #include <unistd.h>
@@ -23,7 +22,7 @@ static void checked_symlink(const char* name, const char* alias, int check_exist
 
 static void clone_current() {
     struct ag_project* project = ag_load_default_or_die();
-    struct ag_component_list* l = project->components;
+    struct list* l = project->components;
     int i = 0;
     pid_t* pids = (pid_t*)xmalloc(sizeof(pid_t) * project->component_count);
     char** names = (char**)xmalloc(sizeof(char*) * project->component_count);
@@ -31,7 +30,7 @@ static void clone_current() {
     char** aliases = (char**)xmalloc(sizeof(char*) * project->component_count);
     struct ag_component* c;
     while (l) {
-        c = l->component;
+        c = (struct ag_component*)l->data;
 
         if (dir_exists(c->name)) {
             printf("Looks like component is already cloned: %s\n", c->name);

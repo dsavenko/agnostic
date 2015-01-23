@@ -1,6 +1,5 @@
 
 #include "agnostic.h"
-#include "common.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,10 +23,10 @@ static void print_component(struct ag_component* c) {
         printf(PROP_COLOR "Description:" TERM_COLOR_RESET " %s\n", c->description);
     }
     if (c->build_after) {
-        struct ag_string_list* l = c->build_after;
+        struct list* l = c->build_after;
         printf(PROP_COLOR "\nBuild after:\n" TERM_COLOR_RESET);
         while (l) {
-            printf("%s ", l->s);
+            printf("%s ", l->data);
             l = l->next;
         }
         printf("\n");

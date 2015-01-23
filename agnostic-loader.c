@@ -1,6 +1,5 @@
 
 #include "agnostic.h"
-#include "common.h"
 
 #include <yaml.h>
 
@@ -67,49 +66,10 @@ enum structure_state {
     s_project,
     s_project_docs,
     s_component,
-    s_component_build_after
+    s_component_build_after,
+
+    __s_length
 };
-
-struct structure_stack {
-    enum structure_state state;
-    struct structure_stack* next;
-};
-
-static void s_free(struct structure_stack* stack) {
-    while (stack) {
-        struct structure_stack* n = stack->next;
-        free(stack);
-        stack = n;
-    }
-}
-
-static struct structure_stack* s_push(enum structure_state state, struct structure_stack* stack) {
-    struct structure_stack* ret = (struct structure_stack*)xcalloc(1, sizeof(struct structure_stack));
-    ret->state = state;
-    ret->next = stack;
-    return ret;
-}
-
-static struct structure_stack* s_pop(struct structure_stack* stack) {
-    if (!stack) {
-        return NULL;
-    }
-    struct structure_stack* ret = stack->next;
-    free(stack);
-    return ret;
-}
-
-static struct ag_string_list** append_string_node(char* s, struct ag_string_list** prev) {
-    assert(!*prev);
-    if (!s) {
-        return prev;
-    }
-    struct ag_string_list* ret = (struct ag_string_list*)xcalloc(1, sizeof(struct ag_string_list));
-    ret->s = s;
-    *prev = ret;
-    prev = &(ret->next);
-    return prev;
-}
 
 int ag_load_default(struct ag_project** project) {
     char* cfg_file = ag_find_project_file();
@@ -128,6 +88,10 @@ struct ag_project* ag_load_default_or_die() {
         die("Failed to load the project. %s", ag_error_msg(x));
     }
     return ret;
+}
+
+static int stack_v(struct list* stack) {
+    return stack ? *((int*)stack->data) : -1;
 }
 
 int ag_load(const char* file_name, struct ag_project** project) {
@@ -159,11 +123,23 @@ int ag_load(const char* file_name, struct ag_project** project) {
     }
     yaml_parser_set_input_file(&parser, fh);
 
-    struct ag_component_list** c = &((*project)->components);
-    struct ag_string_list** cur_build_after = NULL;
-    struct ag_string_list** cur_docs = NULL;
+    struct ag_component* component = NULL;
+    
+    struct list* components_head = NULL;
+    struct list* components_tail = NULL;
 
-    struct structure_stack* stack = NULL;
+    struct list* build_after_head = NULL;
+    struct list* build_after_tail = NULL;
+
+    struct list* docs_head = NULL;
+    struct list* docs_tail = NULL;
+
+    struct list* stack = NULL;
+    int stack_vals[__s_length];
+    for (int i = 0; i < __s_length; ++i) {
+        stack_vals[i] = i;
+    }
+
     char* key = NULL;
 
     int is_key = 0;
@@ -173,6 +149,7 @@ int ag_load(const char* file_name, struct ag_project** project) {
     while (!eof) {
         yaml_parser_scan(&parser, &token);
         debug_print("token %s\n", yaml_token_names[token.type]);
+        int sval = stack_v(stack);
         switch(token.type) {
             case YAML_STREAM_END_TOKEN:
                 eof = 1;
@@ -187,12 +164,12 @@ int ag_load(const char* file_name, struct ag_project** project) {
                 break;
 
             case YAML_DOCUMENT_START_TOKEN:
-                s_free(stack);
-                stack = s_push(s_doc_root, NULL);
+                list_free(stack, NULL);
+                stack = list_create(stack_vals + s_doc_root, NULL);
                 break;
 
             case YAML_DOCUMENT_END_TOKEN:
-                s_free(stack);
+                list_free(stack, NULL);
                 stack = NULL;
                 break;
 
@@ -200,44 +177,42 @@ int ag_load(const char* file_name, struct ag_project** project) {
             case YAML_BLOCK_MAPPING_START_TOKEN:
             case YAML_FLOW_SEQUENCE_START_TOKEN:
             case YAML_FLOW_MAPPING_START_TOKEN:
-                debug_print("started block or flow with key '%s', stack state is %d\n", key, stack->state);
+                debug_print("started block or flow with key '%s', stack state is %d\n", key, sval);
 
                 if (!key) {
                     break;
                 }
-                if (s_doc_root == stack->state && !strcmp(key, "project")) {
+                if (s_doc_root == sval && !strcmp(key, "project")) {
                     if ((*project)->components) {
                         eof = 1;
                         ret = PROJECT_GOES_AFTER_COMPONENT;
                         break;
                     }
-                    stack = s_push(s_project, stack);
+                    stack = list_create(stack_vals + s_project, stack);
                     debug_print("%s\n", "push project");
 
-                } else if (s_project == stack->state && !strcmp(key, "docs")) {
-                    stack = s_push(s_project_docs, stack);
-                    cur_docs = &((*project)->docs);
+                } else if (s_project == sval && !strcmp(key, "docs")) {
+                    stack = list_create(stack_vals + s_project_docs, stack);
                     debug_print("%s\n", "push project docs");
 
-                } else if (s_doc_root == stack->state && !strcmp(key, "component")) {
-                    stack = s_push(s_component, stack);
-                    if (*c) {
-                        (*c)->next = (struct ag_component_list*)xcalloc(1, sizeof(struct ag_component_list));
-                        c = &((*c)->next);
-                    } else {
-                        *c = (struct ag_component_list*)xcalloc(1, sizeof(struct ag_component_list));
+                } else if (s_doc_root == sval && !strcmp(key, "component")) {
+                    stack = list_create(stack_vals + s_component, stack);
+                    if (component) {
+                        component->build_after = build_after_head;
                     }
-                    (*c)->component = (struct ag_component*)xcalloc(1, sizeof(struct ag_component));
+                    component = (struct ag_component*)xcalloc(1, sizeof(struct ag_component));
+                    build_after_head = NULL;
+                    build_after_tail = NULL;
+                    list_add(&components_head, &components_tail, component);
                     (*project)->component_count++;
                     debug_print("%s\n", "push component");
 
-                } else if (s_component == stack->state && !strcmp(key, "buildAfter")) {
-                    stack = s_push(s_component_build_after, stack);
-                    cur_build_after = &((*c)->component->build_after);
+                } else if (s_component == sval && !strcmp(key, "buildAfter")) {
+                    stack = list_create(stack_vals + s_component_build_after, stack);
                     debug_print("%s\n", "push component build after");
 
                 } else {
-                    stack = s_push(s_unknown, stack);
+                    stack = list_create(stack_vals + s_unknown, stack);
                     debug_print("%s\n", "push unknown");
                 }
                 break;
@@ -245,7 +220,7 @@ int ag_load(const char* file_name, struct ag_project** project) {
             case YAML_BLOCK_END_TOKEN:
             case YAML_FLOW_SEQUENCE_END_TOKEN:
             case YAML_FLOW_MAPPING_END_TOKEN:
-                stack = s_pop(stack);
+                list_pop(&stack);
                 break;
 
             case YAML_SCALAR_TOKEN:  
@@ -255,7 +230,7 @@ int ag_load(const char* file_name, struct ag_project** project) {
 
                 } else {
 
-                    if (s_project == stack->state) {
+                    if (s_project == sval) {
                         if (!strcmp(key, "name")) {
                             (*project)->name = xstrdup((const char*)token.data.scalar.value);
 
@@ -267,38 +242,38 @@ int ag_load(const char* file_name, struct ag_project** project) {
 
                         }
 
-                    } else if (s_project_docs == stack->state) {
-                        cur_docs = append_string_node(xstrdup((const char*)token.data.scalar.value), cur_docs);
+                    } else if (s_project_docs == sval) {
+                        list_add(&docs_head, &docs_tail, xstrdup((const char*)token.data.scalar.value));
 
-                    } else if (s_component == stack->state) {
+                    } else if (s_component == sval) {
                         if (!strcmp(key, "name")) {
-                            (*c)->component->name = xstrdup((const char*)token.data.scalar.value);
+                            component->name = xstrdup((const char*)token.data.scalar.value);
 
                         } else if (!strcmp(key, "alias")) {
-                            (*c)->component->alias = xstrdup((const char*)token.data.scalar.value);
+                            component->alias = xstrdup((const char*)token.data.scalar.value);
 
                         } else if (!strcmp(key, "description")) {
-                            (*c)->component->description = xstrdup((const char*)token.data.scalar.value);
+                            component->description = xstrdup((const char*)token.data.scalar.value);
 
                         } else if (!strcmp(key, "git")) {
-                            (*c)->component->git = xstrdup((const char*)token.data.scalar.value);
+                            component->git = xstrdup((const char*)token.data.scalar.value);
 
                         } else if (!strcmp(key, "hg")) {
-                            (*c)->component->hg = xstrdup((const char*)token.data.scalar.value);
+                            component->hg = xstrdup((const char*)token.data.scalar.value);
 
                         } else if (!strcmp(key, "build")) {
-                            (*c)->component->build = xstrdup((const char*)token.data.scalar.value);
+                            component->build = xstrdup((const char*)token.data.scalar.value);
 
                         } else if (!strcmp(key, "integrate")) {
-                            (*c)->component->integrate = xstrdup((const char*)token.data.scalar.value);
+                            component->integrate = xstrdup((const char*)token.data.scalar.value);
 
                         } else if (!strcmp(key, "clean")) {
-                            (*c)->component->clean = xstrdup((const char*)token.data.scalar.value);
+                            component->clean = xstrdup((const char*)token.data.scalar.value);
 
                         }
 
-                    } else if (s_component_build_after == stack->state) {
-                        cur_build_after = append_string_node(xstrdup((const char*)token.data.scalar.value), cur_build_after);
+                    } else if (s_component_build_after == sval) {
+                        list_add(&build_after_head, &build_after_tail, xstrdup((const char*)token.data.scalar.value));
 
                     }
 
@@ -314,8 +289,11 @@ int ag_load(const char* file_name, struct ag_project** project) {
         yaml_token_delete(&token);
     }
 
+    (*project)->docs = docs_head;
+    (*project)->components = components_head;
+
     free(key);
-    s_free(stack);
+    list_free(stack, NULL);
     yaml_parser_delete(&parser);
     fclose(fh);
     return ret;
