@@ -1,6 +1,6 @@
 
-#ifndef RUN_CMD
-#define RUN_CMD
+#ifndef COMMON_H
+#define COMMON_H
 
 #include <unistd.h>
 
@@ -72,5 +72,5 @@ void list_add(struct list** head, struct list** tail, void* data);
 // Removes node from the head of the given list. Returns the node's data. 
 void* list_pop(struct list** head);
 
-#endif // RUN_CMD
+#endif
 
