@@ -110,15 +110,39 @@ static void clean_component(struct ag_project* project, struct ag_component* c) 
 
     switch (run_component_script(project, c, c->clean)) {
     case NOTHING_TO_DO:
-        printf("Nothing to clean: %s", c->name);
+        printf("Nothing to clean: %s\n", c->name);
         break;
 
     case SCRIPT_FAILED:
-        printf("Failed to clean: %s", c->name);
+        printf("Failed to clean: %s\n", c->name);
         break;
 
     case SCRIPT_ABORTED:
-        printf("Cleaning aborted: %s", c->name);
+        printf("Cleaning aborted: %s\n", c->name);
+        break;
+
+    case OK:
+        break;
+    }
+}
+
+static void test_component(struct ag_project* project, struct ag_component* c) {
+    assert(project);
+    assert(c);
+
+    printf("Testing %s\n", c->name);
+
+    switch (run_component_script(project, c, c->test)) {
+    case NOTHING_TO_DO:
+        printf("Nothing to test: %s\n", c->name);
+        break;
+
+    case SCRIPT_FAILED:
+        printf("Failed to test: %s\n", c->name);
+        break;
+
+    case SCRIPT_ABORTED:
+        printf("Testing aborted: %s\n", c->name);
         break;
 
     case OK:
@@ -234,4 +258,8 @@ void build(int argc, const char** argv) {
 
 void clean(int argc, const char** argv) {
     perform_main(&clean_component, argc, argv);
+}
+
+void test(int argc, const char** argv) {
+    perform_main(&test_component, argc, argv);
 }

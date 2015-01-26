@@ -1,23 +1,34 @@
-= ag-build(1) =
+= ag-script(1) =
 
 == NAME ==
-ag-build - build component.
+ag-script - execute component script.
 
 == SYNOPSIS ==
 [verse]
-'ag build' [-n | --dry-run] [<component1> <component2> ...]
+'ag <script>' [-n | --dry-run] [<component1> <component2> ...]
 
 [verse]
-'ag build' [-n | --dry-run] up [-t <component>]
+'ag <script>' [-n | --dry-run] up [-t <component>]
 
 [verse]
-'ag build' [-n | --dry-run] down [-t <component>]
+'ag <script>' [-n | --dry-run] down [-t <component>]
 
 [verse]
-'ag build' [-n | --dry-run] all
+'ag <script>' [-n | --dry-run] all
 
 == DESCRIPTION ==
-Builds components.
+Executes component scripts. Supported scripts:
+
+build::
+    Builds components.
+
+clean::
+    Cleans components.
+
+test::
+    Runs tests for components. 
+
+Supported usage forms (using 'build' script as an example here, but it works for all other scripts as well):
 
 `ag build`::
     Builds current component or all the specified components. Components are specified by their names or aliases.
@@ -33,6 +44,8 @@ Builds components.
 
 == OPTIONS ==
 
+Using 'build' script as an example here, but it works for all other scripts as well. 
+
 -n::
 --dry-run::
     Don't do actual build, just print component names to be built.
@@ -42,6 +55,8 @@ Builds components.
     Terminator for upstream/downstream builds. Do not build components above the specified component for upstream build. Do not build components below the specified component for downstream build. 
 
 == EXAMPLES ==
+
+Using 'build' script as an example here, but it works for all other scripts as well. 
 
 Build current component:
 

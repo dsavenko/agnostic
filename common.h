@@ -65,7 +65,7 @@ struct list* list_create(void* data, struct list* next);
 // If free_data is not NULL, it is called for data of each element and should free it.
 void list_free(struct list* list, void (*free_data)(void*));
 
-// Adds a new node to the tails of the existing list. 'Head' and tail should point to the list's head and tail respectively.
+// Adds a new node to the tail of the existing list. 'Head' and 'tail' should point to the list's head and tail respectively.
 // '*head' and/or '*tail' may be NULL. 
 void list_add(struct list** head, struct list** tail, void* data);
 

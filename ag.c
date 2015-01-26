@@ -10,12 +10,14 @@ struct cmd_struct {
     const char* name;
     const char* shortcut;
     void (*fn)(int argc, const char** argv);
+    const char* man_page;
 };
 
 extern void clone(int argc, const char** argv);
 extern void component(int argc, const char** argv);
 extern void build(int argc, const char** argv);
 extern void clean(int argc, const char** argv);
+extern void test(int argc, const char** argv);
 extern void project(int argc, const char** argv);
 
 static void help(int argc, const char** argv);
@@ -23,15 +25,16 @@ static void help(int argc, const char** argv);
 static struct cmd_struct commands[] = {
 
         // functions
-        { "clone", "", &clone },
-        { "component", "comp", &component },
-        { "project", "proj", &project },
-        { "build", "", &build },
-        { "help", "", &help },
-        { "clean", "", &clean },
+        { "clone", "", &clone, "ag-clone" },
+        { "component", "comp", &component, "ag-component" },
+        { "project", "proj", &project, "ag-project" },
+        { "build", "", &build, "ag-script" },
+        { "help", "", &help, "ag-help" },
+        { "clean", "", &clean, "ag-script" },
+        { "test", "", &test, "ag-script" },
 
         // scripts
-        { "remove", "", NULL }
+        { "remove", "", NULL, "ag-remove" }
     };
 
 static const char* help_topics[] = {
@@ -50,17 +53,16 @@ static void help(int argc, const char** argv) {
             printf("\t%s\n", (commands + i)->name);
         }
     } else {
-        char* man = NULL;
+        const char* man = NULL;
         for (int i = 0; !man && i < ARRAY_SIZE(help_topics); ++i) {
             if (!strcmp(help_topics[i], *argv)) {
-                man = (char*)*argv;
+                man = *argv;
             }
         }
         for (int i = 0; !man && i < ARRAY_SIZE(commands); ++i) {
-            if (!strcmp((commands + i)->name, *argv)) {
-                if (-1 == asprintf(&man, "ag-%s", *argv)) {
-                    die("Out of memory, asprintf failed");
-                }
+            struct cmd_struct* cmd = commands + i;
+            if (!strcmp(cmd->name, *argv) || (cmd->shortcut && !strcmp(cmd->shortcut, *argv))) {
+                man = cmd->man_page;
             }
         }
         if (!man) {

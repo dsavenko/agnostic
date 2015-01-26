@@ -40,6 +40,9 @@ static void print_component(struct ag_component* c) {
     if (c->clean) {
         printf(PROP_COLOR "Clean:" TERM_COLOR_RESET "\n%s\n", c->clean);
     }
+    if (c->test) {
+        printf(PROP_COLOR "Test:" TERM_COLOR_RESET "\n%s\n", c->test);
+    }
 }
 
 void component(int argc, const char** argv) {

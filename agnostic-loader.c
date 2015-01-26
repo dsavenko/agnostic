@@ -270,6 +270,9 @@ int ag_load(const char* file_name, struct ag_project** project) {
                         } else if (!strcmp(key, "clean")) {
                             component->clean = xstrdup((const char*)token.data.scalar.value);
 
+                        } else if (!strcmp(key, "test")) {
+                            component->test = xstrdup((const char*)token.data.scalar.value);
+
                         }
 
                     } else if (s_component_build_after == sval) {

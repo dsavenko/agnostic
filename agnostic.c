@@ -34,6 +34,7 @@ static void ag_free_component(void* data) {
     free(c->build);
     free(c->integrate);
     free(c->clean);
+    free(c->test);
     list_free(c->build_after, &free);
     free(c);
 }
