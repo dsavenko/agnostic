@@ -197,9 +197,6 @@ int ag_load(const char* file_name, struct ag_project** project) {
 
                 } else if (s_doc_root == sval && !strcmp(key, "component")) {
                     stack = list_create(stack_vals + s_component, stack);
-                    if (component) {
-                        component->build_after = build_after_head;
-                    }
                     component = (struct ag_component*)xcalloc(1, sizeof(struct ag_component));
                     build_after_head = NULL;
                     build_after_tail = NULL;
@@ -220,6 +217,11 @@ int ag_load(const char* file_name, struct ag_project** project) {
             case YAML_BLOCK_END_TOKEN:
             case YAML_FLOW_SEQUENCE_END_TOKEN:
             case YAML_FLOW_MAPPING_END_TOKEN:
+                if (s_component == sval) {
+                    if (component) {
+                        component->build_after = build_after_head;
+                    }
+                }
                 list_pop(&stack);
                 break;
 
