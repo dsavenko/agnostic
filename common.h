@@ -23,6 +23,13 @@
 #define debug_print(fmt, ...) \
             do { if (DEBUG_TEST) printf(fmt, __VA_ARGS__); } while (0)
 
+// Function to call for exit. Should be called instead of exit() or _Exit().
+extern void (*xexit)(int status);
+
+// Wrapper for fork(), which sets xexit() to _Exit for child processes.
+// Should be called instead of fork().
+pid_t xfork();
+
 // Terminates program abnormally with the given message.
 void die(const char * format, ...);
 

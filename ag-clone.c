@@ -59,7 +59,7 @@ static void clone_current() {
         if (-1 == child_pid) {
             perror(NULL);
             fprintf(stderr, "Failed to run clone for %s\n", c->name);
-            exit(1);
+            xexit(1);
         }
 
         pids[i] = child_pid;

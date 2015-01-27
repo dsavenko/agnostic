@@ -8,12 +8,23 @@
 #include <string.h>
 #include <dirent.h>
 
+void (*xexit)(int status) = &exit;
+
+pid_t xfork() {
+    pid_t ret = fork();
+    if (0 == ret) {
+        // child process should call _Exit
+        xexit = &_Exit;
+    }
+    return ret;
+}
+
 void die(const char * format, ...) {
     va_list vargs;
     va_start (vargs, format);
     vfprintf (stderr, format, vargs);
     fprintf (stderr, "\n");
-    exit (1);
+    xexit(1);
 }
 
 void* xcalloc(size_t count, size_t size) {
@@ -79,7 +90,7 @@ int dir_exists(const char* path) {
 pid_t run_cmd_line(const char* cmd_line, int supress_output) {
     assert(cmd_line);
 
-    pid_t child_pid = fork();
+    pid_t child_pid = xfork();
     if (0 == child_pid) {
         if (supress_output) {
             fclose(stdout);
@@ -111,7 +122,7 @@ char* create_temp_file(const char* prefix, const char* content) {
 pid_t run_script(const char* dir, const char* script_file_name) {
     assert(script_file_name);
 
-    pid_t child_pid = fork();
+    pid_t child_pid = xfork();
     if (0 == child_pid) {
         if (dir && chdir(dir)) {
             return -1;

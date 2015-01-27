@@ -162,7 +162,7 @@ int main(int argc, char **av) {
             fprintf(stderr, "%s ", matched[i]->name);
         }
         fprintf(stderr, "\n");
-        exit(1);
+        xexit(1);
     }
 
     return 0;
