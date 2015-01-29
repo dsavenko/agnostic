@@ -11,7 +11,9 @@ static const char* error_messages[] = {
     [OK] = "OK",
     [UNABLE_TO_OPEN_FILE] = "Unable to open file",
     [FILE_NOT_FOUND] = "File not found",
-    [PROJECT_GOES_AFTER_COMPONENT] = "Project section must go before any component sections"
+    [PROJECT_GOES_AFTER_COMPONENT] = "Project section must go before any component sections",
+    [DEPENDENCY_LOOP] = "Dependency loop detected",
+    [COMPONENT_NOT_FOUND] = "Component not found"
 };
 
 const char* ag_error_msg(int code) {
@@ -187,7 +189,11 @@ char* ag_component_dir(struct ag_project* project, struct ag_component* componen
     return ret;
 }
 
-static int is_component_up_in_branch(struct ag_project* project, struct ag_component* leaf, const char* name) {
+static int is_component_up_in_branch_guarded(struct ag_project* project, struct ag_component* leaf, const char* name, int count) {
+    if (count > project->component_count + 2) {
+        // actually, it's a dependency loop
+        return 0;
+    }
     if (!leaf) {
         return 0;
     }
@@ -195,16 +201,27 @@ static int is_component_up_in_branch(struct ag_project* project, struct ag_compo
         return 1;
     }
     for (struct list* slist = leaf->build_after; slist; slist = slist->next) {
-        if (is_component_up_in_branch(project, ag_find_component(project, (char*)slist->data), name)) {
+        if (is_component_up_in_branch_guarded(project, ag_find_component(project, (char*)slist->data), name, count + 1)) {
             return 1;
         }
     }
     return 0;
 }
 
-static struct list* fill_build_up_list(struct list* old_root, struct ag_project* project, struct ag_component* component, const char* up_to_component) {
+static int is_component_up_in_branch(struct ag_project* project, struct ag_component* leaf, const char* name) {
+    return is_component_up_in_branch_guarded(project, leaf, name, 0);
+}
+
+static struct list* fill_build_up_list(struct list* old_root, struct ag_project* project, struct ag_component* component, 
+    const char* up_to_component, int count, int* ret_code) {
 
     // TODO: heavy code here and in is_component_up_in_branch() function. Need to rewrite in a more efficient way
+
+    if (0 > count || count > project->component_count * project->component_count) {
+        list_free(old_root, NULL);
+        *ret_code = DEPENDENCY_LOOP;
+        return NULL;
+    }
 
     if (!old_root) {
         return NULL;
@@ -217,18 +234,22 @@ static struct list* fill_build_up_list(struct list* old_root, struct ag_project*
 
         int found = 0;
         for (struct list* l = project->components; l && !found; l = l->next) {
-            struct ag_component*c = (struct ag_component*)l->data;
+            struct ag_component* c = (struct ag_component*)l->data;
             if (!strcmp(c->name, s)) {
                 if (!up_to_component || is_component_up_in_branch(project, c, up_to_component)) {
                     new_root = list_create(c, new_root);
-                    new_root = fill_build_up_list(new_root, project, c, up_to_component);
+                    new_root = fill_build_up_list(new_root, project, c, up_to_component, count + 1, ret_code);
+                    if (!new_root) {
+                        return NULL;
+                    }
                 }
                 found = 1;
             }
         }
 
-        if (!found || !new_root) {
+        if (!found) {
             list_free(new_root, NULL);
+            *ret_code = COMPONENT_NOT_FOUND;
             return NULL;
         }
     }
@@ -250,27 +271,41 @@ static void remove_duplicates(struct list* list) {
     }
 }
 
-struct list* ag_build_up_list(struct ag_project* project, struct ag_component* component, const char* up_to_component) {
+struct list* ag_build_up_list(struct ag_project* project, struct ag_component* component, const char* up_to_component, int* ret_code) {
     assert(project);
     assert(component);
-    struct list* ret = fill_build_up_list(list_create(component, NULL), project, component, up_to_component);
-    remove_duplicates(ret);
+    int rc = OK;
+    struct list* ret = fill_build_up_list(list_create(component, NULL), project, component, up_to_component, 0, &rc);
+    if (ret) {
+        remove_duplicates(ret);
+    }
+    if (ret_code) {
+        *ret_code = rc;
+    }
     return ret;
 }
 
-static struct list* fill_build_down_list(struct ag_component* root, struct ag_project* project, struct ag_component* down_cmp) {
+static struct list* fill_build_down_list(struct ag_component* root, struct ag_project* project, struct ag_component* down_cmp, int* ret_code) {
     if (!root) {
         return NULL;
     }
 
     struct list* ret = NULL;
     struct list* l = NULL;
+    int ret_count = 0;
 
     struct list* queue_head = list_create(root, NULL);
     struct list* queue_tail = queue_head;
     while (queue_head) {
         struct ag_component* c = (struct ag_component*)queue_head->data;
         list_add(&ret, &l, c);
+        ++ret_count;
+        if (0 > ret_count || ret_count > project->component_count * project->component_count) {
+            list_free(queue_head, NULL);
+            list_free(ret, NULL);
+            *ret_code = DEPENDENCY_LOOP;
+            return NULL;
+        }
         for (struct list* pl = project->components; pl; pl = pl->next) {
             struct ag_component* pc = (struct ag_component*)pl->data;
             for (struct list* sl = pc->build_after; sl; sl = sl->next) {
@@ -287,15 +322,27 @@ static struct list* fill_build_down_list(struct ag_component* root, struct ag_pr
     return ret;
 }
 
-struct list* ag_build_down_list(struct ag_project* project, struct ag_component* component, const char* down_to_component) {
+struct list* ag_build_down_list(struct ag_project* project, struct ag_component* component, const char* down_to_component, int* ret_code) {
     assert(project);
     assert(component);
     struct ag_component* down_cmp = NULL;
     if (down_to_component) {
         down_cmp = ag_find_component(project, down_to_component);
+        if (!down_cmp) {
+            if (ret_code) {
+                *ret_code = COMPONENT_NOT_FOUND;
+            }
+            return NULL;
+        }
     }
-    struct list* ret = fill_build_down_list(component, project, down_cmp);
-    remove_duplicates(ret);
+    int rc = OK;
+    struct list* ret = fill_build_down_list(component, project, down_cmp, &rc);
+    if (ret) {
+        remove_duplicates(ret);
+    }
+    if (ret_code) {
+        *ret_code = rc;
+    }
     return ret;
 }
 

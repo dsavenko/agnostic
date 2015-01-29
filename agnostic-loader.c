@@ -85,7 +85,7 @@ struct ag_project* ag_load_default_or_die() {
     struct ag_project* ret = NULL;
     int x = ag_load_default(&ret);
     if (x) {
-        die("Failed to load the project. %s", ag_error_msg(x));
+        die("Failed to load the project. %s.", ag_error_msg(x));
     }
     return ret;
 }

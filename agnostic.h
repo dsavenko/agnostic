@@ -31,7 +31,9 @@ enum ag_return_codes {
     OK,
     UNABLE_TO_OPEN_FILE,
     FILE_NOT_FOUND,
-    PROJECT_GOES_AFTER_COMPONENT
+    PROJECT_GOES_AFTER_COMPONENT,
+    DEPENDENCY_LOOP,
+    COMPONENT_NOT_FOUND
 };
 
 // Returns error message for the given code, or NULL, if not found.
@@ -70,14 +72,16 @@ char* ag_component_dir(struct ag_project* project, struct ag_component* componen
 // Components in the list are sorted appropriately.
 // If 'up_to_component' is not NULL, the list will be built up to this component only.
 // The list should be shallow-freed.
-struct list* ag_build_up_list(struct ag_project* project, struct ag_component* component, const char* up_to_component);
+// On error, returns NULL. If ret_code is not NULL, sets the value appropriately.
+struct list* ag_build_up_list(struct ag_project* project, struct ag_component* component, const char* up_to_component, int* ret_code);
 
 // Returns a list of components, which should be built after the given component. 
 // On success, the list always includes the given component as its first item. On failure to resolve dependencies, NULL is returned.
 // Components in the list are sorted appropriately.
 // If 'down_to_component' is not NULL, the list will be built down to this component only.
 // The list should be shallow-freed.
-struct list* ag_build_down_list(struct ag_project* project, struct ag_component* component, const char* down_to_component);
+// On error, returns NULL. If ret_code is not NULL, sets the value appropriately.
+struct list* ag_build_down_list(struct ag_project* project, struct ag_component* component, const char* down_to_component, int* ret_code);
 
 // Returns a list of all components in the correct build order. 
 // The list should be shallow-freed.

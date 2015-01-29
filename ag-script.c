@@ -189,13 +189,14 @@ static struct list* list_up_down(struct ag_project* project, int up, int argc, c
     }
 
     struct list* ret = NULL;
+    int rc = 0;
     if (up) {
-        ret = ag_build_up_list(project, extract_component(project, argc, argv), up_to);        
+        ret = ag_build_up_list(project, extract_component(project, argc, argv), up_to, &rc);
     } else {
-        ret = ag_build_down_list(project, extract_component(project, argc, argv), up_to);
+        ret = ag_build_down_list(project, extract_component(project, argc, argv), up_to, &rc);
     }
     if (!ret) {
-        die("Unable to resolve build order");
+        die("Failed to resolve build order. %s.", ag_error_msg(rc));
     }
     return ret;
 }

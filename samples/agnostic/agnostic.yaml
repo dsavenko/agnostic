@@ -38,5 +38,5 @@ component:
     make
   clean: |
     make clean
-  buildAfter: 
+  buildAfter:
     - libyaml
