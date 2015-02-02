@@ -12,6 +12,7 @@ static const char* error_messages[] = {
     [UNABLE_TO_OPEN_FILE] = "Unable to open file",
     [FILE_NOT_FOUND] = "File not found",
     [PROJECT_GOES_AFTER_COMPONENT] = "Project section must go before any component sections",
+    [INVALID_PROJECT_FILE] = "Invalid project file",
     [DEPENDENCY_LOOP] = "Dependency loop detected",
     [COMPONENT_NOT_FOUND] = "Component not found"
 };

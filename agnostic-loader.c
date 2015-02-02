@@ -297,6 +297,11 @@ int ag_load(const char* file_name, struct ag_project** project) {
     (*project)->docs = docs_head;
     (*project)->components = components_head;
 
+    if (!(*project)->name || !((*project)->name)[0]) {
+        ag_free(*project);
+        return INVALID_PROJECT_FILE;
+    }
+
     free(key);
     list_free(stack, NULL);
     yaml_parser_delete(&parser);

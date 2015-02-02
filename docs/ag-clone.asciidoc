@@ -5,9 +5,15 @@ ag-clone - clone project.
 
 == SYNOPSIS ==
 [verse]
-'ag clone' [<project file url>]
+'ag clone' [-p | --parallel] [<project file url>]
 
 == DESCRIPTION ==
 Clones all project components into subdirectories (named after component names) of the working directory. If a component has an alias, a symlink, named after it, is created and points to the component directory. 
 
 If *url* is specified, downloads the project file from the given location (_curl_ is required for this). Otherwise, requires *agnostic.yaml* file to present in the working directory. 
+
+== OPTIONS ==
+
+-p::
+--parallel::
+    Clone all components in parallel. VCS output is suppressed, so this mode won't work, if VCS asks for something (password, host authenticity confirmation, etc).
