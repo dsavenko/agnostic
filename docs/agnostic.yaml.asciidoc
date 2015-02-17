@@ -58,6 +58,9 @@ A component document must have top-level mapping node `component`. Recognizable 
 `name`:: 
     *(required)* the component's full name.
 
+`disabled`:: 
+    If `true`, this component is marked disabled and excluded from some batch operations.
+
 `description`:: 
     human-readable description of the component.
 

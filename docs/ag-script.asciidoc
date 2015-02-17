@@ -54,6 +54,10 @@ Using 'build' script as an example here, but it works for all other scripts as w
 --to::
     Terminator for upstream/downstream builds. Do not build components above the specified component for upstream build. Do not build components below the specified component for downstream build. 
 
+== NOTES ==
+
+All unrestricted forms (e.g. 'up/down' without -t, or 'all') skip disabled components. All restricted forms do not skip disabled components. 
+
 == EXAMPLES ==
 
 Using 'build' script as an example here, but it works for all other scripts as well. 

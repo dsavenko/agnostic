@@ -5,8 +5,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define PROP_COLOR TERM_COLOR_GREEN
-
 static void print_all(struct ag_project* p) {
     printf(PROP_COLOR "Name:" TERM_COLOR_RESET " %s\n", p->name);
     printf(PROP_COLOR "Root directory:" TERM_COLOR_RESET " %s\n", p->dir);

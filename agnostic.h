@@ -13,6 +13,7 @@ struct ag_component {
     char* integrate;
     char* clean;
     char* test;
+    int disabled;
     struct list* build_after; // string list, keeps component names
 };
 

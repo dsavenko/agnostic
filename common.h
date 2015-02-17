@@ -12,6 +12,10 @@
 #define TERM_COLOR_CYAN    "\x1b[36m"
 #define TERM_COLOR_RESET   "\x1b[0m"
 
+#define PROP_COLOR         TERM_COLOR_GREEN
+#define WARN_COLOR         TERM_COLOR_YELLOW
+#define COLOR_RESET        TERM_COLOR_RESET
+
 #define ARRAY_SIZE(x) (sizeof(x)/sizeof(x[0]))
 
 #ifdef DEBUG

@@ -82,7 +82,7 @@ static void build_component(struct ag_project* project, struct ag_component* c) 
     assert(project);
     assert(c);
 
-    printf("Building %s\n", c->name);
+    printf(PROP_COLOR "Building %s" COLOR_RESET "\n", c->name);
 
     switch (run_component_script(project, c, c->build)) {
     case NOTHING_TO_DO:
@@ -106,7 +106,7 @@ static void clean_component(struct ag_project* project, struct ag_component* c) 
     assert(project);
     assert(c);
 
-    printf("Cleaning %s\n", c->name);
+    printf(PROP_COLOR "Cleaning %s" COLOR_RESET "\n", c->name);
 
     switch (run_component_script(project, c, c->clean)) {
     case NOTHING_TO_DO:
@@ -130,7 +130,7 @@ static void test_component(struct ag_project* project, struct ag_component* c) {
     assert(project);
     assert(c);
 
-    printf("Testing %s\n", c->name);
+    printf(PROP_COLOR "Testing %s" COLOR_RESET "\n", c->name);
 
     switch (run_component_script(project, c, c->test)) {
     case NOTHING_TO_DO:
@@ -170,7 +170,7 @@ static struct list* list_list(struct ag_project* project, int argc, const char**
     return ret;
 }
 
-static struct list* list_up_down(struct ag_project* project, int up, int argc, const char** argv) {
+static struct list* list_up_down(struct ag_project* project, int up, int* skip_disabled, int argc, const char** argv) {
     const char* up_to = NULL;
 
     while (1 <= argc) {
@@ -187,6 +187,7 @@ static struct list* list_up_down(struct ag_project* project, int up, int argc, c
         ++argv;
         --argc;
     }
+    *skip_disabled = (NULL == up_to);
 
     struct list* ret = NULL;
     int rc = 0;
@@ -209,6 +210,8 @@ static void perform_main(void (*p)(struct ag_project*, struct ag_component*), in
     struct ag_project* project = ag_load_default_or_die();
 
     int dry_run = 0;
+    int skip_disabled = 0;
+
     // options
     while (1 <= argc) {
         if (!strcmp("-n", *argv) || !strcmp("--dry-run", *argv)) {
@@ -225,13 +228,14 @@ static void perform_main(void (*p)(struct ag_project*, struct ag_component*), in
     // command
     if (1 <= argc) {
         if (!strcmp("up", *argv)) {
-            list = list_up_down(project, 1, argc-1, argv+1);
+            list = list_up_down(project, 1, &skip_disabled, argc-1, argv+1);
 
         } else if (!strcmp("down", *argv)) {
-            list = list_up_down(project, 0, argc-1, argv+1);
+            list = list_up_down(project, 0, &skip_disabled, argc-1, argv+1);
             
         } else if (!strcmp("all", *argv)) {
             list = list_all(project);
+            skip_disabled = 1;
             
         } else {
             list = list_list(project, argc, argv);
@@ -242,8 +246,13 @@ static void perform_main(void (*p)(struct ag_project*, struct ag_component*), in
 
     for (struct list* i = list; i; i = i->next) {
         struct ag_component* c = (struct ag_component*)i->data;
+        int skip = skip_disabled && c->disabled;
         if (dry_run) {
-            printf("%s\n", c->name);
+            if (!skip) {
+                printf("%s\n", c->name);
+            }
+        } else if (skip) {
+            printf(WARN_COLOR "Skipping %s" COLOR_RESET "\n", c->name);
         } else {
             p(project, c);
         }

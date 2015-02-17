@@ -5,11 +5,12 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#define PROP_COLOR TERM_COLOR_GREEN
-
 static void print_component(struct ag_component* c) {
     assert(c);
 
+    if (c->disabled) {
+        printf(WARN_COLOR "Disabled" TERM_COLOR_RESET "\n");
+    }
     printf(PROP_COLOR "Name:" TERM_COLOR_RESET " %s\n", c->name);
     if (c->alias) {
         printf(PROP_COLOR "Alias:" TERM_COLOR_RESET " %s\n", c->alias);
