@@ -107,15 +107,15 @@ char* create_temp_file(const char* prefix, const char* content) {
     if (-1 == asprintf(&fname, "/tmp/%sXXXXXXXXXX", prefix)) {
         return NULL;
     }
-    if (!mkstemp(fname)) {
+    int fd = mkstemp(fname);
+    if (fd < 0) {
         free(fname);
         return NULL;
     }
-    FILE* f = fopen(fname, "w");
     if (content) {
-        fprintf(f, "%s", content);
+        write(fd, content, strlen(content));
     }
-    fclose(f);
+    close(fd);
     return fname;
 }
 
