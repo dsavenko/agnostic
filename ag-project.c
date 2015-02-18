@@ -18,7 +18,7 @@ static void print_all(struct ag_project* p) {
     if (p->docs) {
         printf(PROP_COLOR "Documentation:\n" TERM_COLOR_RESET);
         for (struct list* l = p->docs; l; l = l->next) {
-            printf("  - %s\n", l->data);
+            printf("  - %s\n", (char*) l->data);
         }
     }
     if (p->components) {

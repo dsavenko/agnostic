@@ -128,10 +128,9 @@ static char * normalize_path(const char * src, size_t src_len) {
 }
 
 char* ag_find_project_file() {
-    const int size = 2;
-    const char* files[size] = { "../agnostic.yaml", "agnostic.yaml" };
+    const char* files[] = { "../agnostic.yaml", "agnostic.yaml" };
     const char* relative = NULL;
-    for (int i = 0; i < 2; ++i) {
+    for (int i = 0; i < ARRAY_SIZE(files); ++i) {
         if (file_exist(files[i])) {
             relative = files[i];
             break;

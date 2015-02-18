@@ -27,7 +27,7 @@ static void print_component(struct ag_component* c) {
         struct list* l = c->build_after;
         printf(PROP_COLOR "\nBuild after:\n" TERM_COLOR_RESET);
         while (l) {
-            printf("%s ", l->data);
+            printf("%s ", (char*) l->data);
             l = l->next;
         }
         printf("\n");
