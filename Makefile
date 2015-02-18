@@ -1,7 +1,7 @@
 AG_VERSION=1.0
 
 CC=gcc
-COPTS=-O2
+COPTS=-O2 -std=gnu11
 #COPTS=-DDEBUG
 CFLAGS=-g $(COPTS) -Wall
 

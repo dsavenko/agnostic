@@ -107,7 +107,7 @@ char* create_temp_file(const char* prefix, const char* content) {
     if (-1 == asprintf(&fname, "/tmp/%sXXXXXXXXXX", prefix)) {
         return NULL;
     }
-    if (!mktemp(fname)) {
+    if (!mkstemp(fname)) {
         free(fname);
         return NULL;
     }
